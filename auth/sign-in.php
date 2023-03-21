@@ -40,8 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             http_response_code(200);
             echo json_encode([
                 "status" => "success",
-                "message" => "Login successfully",
-                "user" => $data[0],
+                "data" => $data[0],
                 "token" => $jwt,
             ]);
         } else {
