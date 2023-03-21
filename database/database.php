@@ -15,8 +15,8 @@ class Database
     
     public function __construct()     
         {
-           $this->localhost  =$_ENV['LOCALHOST'];
-           $this->database  =$_ENV['DATABASE'];
+            $this->localhost  =$_ENV['LOCALHOST'];
+            $this->database  =$_ENV['DATABASE'];
             $this->username  =$_ENV['USERNAME'];
             $this->password  =$_ENV['PASSWORD'];
         if (!$this->conn) {
@@ -128,7 +128,6 @@ class Database
         if ($this->tableExist($table)) {
             $table_column = implode(',', array_keys($params));
             $table_value = implode("','", array_values($params));
-            //INSERT INTO TEN_BANG (cot1, cot2, cot3,...cotN) VALUES (gia_tri1, gia_tri2, gia_tri3,...gia_triN);
             $sql = "INSERT INTO $table ($table_column) VALUES ('$table_value')";
             $query = $this->pdo->query($sql);
             if ($query) {
