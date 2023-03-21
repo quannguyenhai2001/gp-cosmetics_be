@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if ($isEmail) {
         http_response_code(400);
         echo json_encode([
-            "status" => 0,
+            "status" => "error",
             "field" => "email",
             "message" => "Email already exist",
         ]);
