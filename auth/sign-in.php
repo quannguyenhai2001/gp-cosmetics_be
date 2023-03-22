@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             echo json_encode([
                 "status" => "error",
                 "field" => "password",
-                "message" => "Password is incorrect",
+                "message" => "Password is incorrect!",
             ]);
         }
     } else {
@@ -56,13 +56,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         echo json_encode([
             "status" => "error",
             "field" => "email",
-            "message" => "Email is incorrect",
+            "message" => "Email is incorrect!",
         ]);
     }
 } else {
     http_response_code(405);
     echo json_encode(array(
         "status" => "error",
-        "message" => "access denied"
+        "message" => "Access denied!"
     ));
 }
