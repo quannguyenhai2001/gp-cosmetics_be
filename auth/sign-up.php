@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         echo json_encode([
             "status" => "error",
             "field" => "email",
-            "message" => "Email already exist",
+            "message" => "Email already exist!",
         ]);
     } else {
         $array_param = [
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             http_response_code(201);
             echo json_encode([
                 "status" => "success",
-                "message" => "Create user successfully",
+                "message" => "Create user successfully!",
             ]);
         } else {
             http_response_code(400);
@@ -74,6 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     http_response_code(405);
     echo json_encode(array(
         "status" => "error",
-        "message" => "access denied"
+        "message" => "Access denied!"
     ));
 }
