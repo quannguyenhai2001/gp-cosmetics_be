@@ -89,13 +89,8 @@ class Database
                 $sql .= " LIMIT $limit";
             }
             $query = $this->pdo->query($sql);
-            if ($query->rowCount() > 0) {
-                //array
-                $this->result = $query->fetchAll(PDO::FETCH_ASSOC);
-                return true;
-            } else {
-                return false;
-            }
+            $this->result = $query->fetchAll(PDO::FETCH_ASSOC);
+            return true;
         } else {
             return false;
         }
