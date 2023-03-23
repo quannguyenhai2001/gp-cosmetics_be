@@ -9,7 +9,6 @@ header("Access-Control-Allow-Headers: *");
 include_once "../middleware/check-auth.php";
 include_once("../database/database.php");
 include_once("../vendor/autoload.php");
-include_once "../middleware/check-server-error.php";
 
 $obj = new Database();
 
@@ -17,17 +16,23 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $payload = checkAuth(getallheaders(), null);
     if ($payload) {
         $sql = $obj->select("users", "*", null, null, "id='$payload[id]'", null, null);
-        $isServerError = checkServerError($sql);
-        if (!$isServerError) {
-            $data = $obj->getResult();
+        $result = $obj->getResult();
+        if ($sql) {
             http_response_code(200);
             echo json_encode([
                 "status" => "success",
-                "data" => $data,
+                "data" => $result,
+            ]);
+        } else {
+            http_response_code(400);
+            echo json_encode([
+                "status" => "error",
+                "message" => $result,
             ]);
         }
     }
 } else {
+    http_response_code(405);
     echo json_encode(array(
         "status" => "error",
         "message" => "Access denied!"
