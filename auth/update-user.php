@@ -53,13 +53,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     http_response_code(400);
                     echo json_encode(array(
                         "status" => "error",
-                        "message" => "user not found",
+                        "message" => "user not found!",
                     ));
                 }
             }
         } else {
             $arr = array();
-            if (isset($_POST['displayName'])) {
+            if (isset($_POST['display_name'])) {
                 $arr['displayName'] = $_POST['displayName'];
             }
             if (isset($_POST['sex'])) {
@@ -74,16 +74,16 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             if (isset($_FILES['avatar'])) {
                 Configuration::instance([
                     'cloud' => [
-                        'cloud_name' => 'my_cloud_name',
-                        'api_key' => 'my_key',
-                        'api_secret' => 'my_secret'
+                        'cloud_name' => $_ENV['CLOUD_NAME_CLOUDINARY'],
+                        'api_key' => $_ENV['API_KEY_CLOUDINARY'],
+                        'api_secret' => $_ENV['API_SECRET_KEY_CLOUDINARY']
                     ],
                     'url' => [
                         'secure' => true
                     ]
                 ]);
                 $data = (new UploadApi())->upload($_FILES['avatar']['tmp_name'], [
-                    'folder' => 'cosmetic/avatar/',
+                    'folder' => 'cosmetics/avatars/',
                     'public_id' => $_FILES['avatar']['name'],
                     'overwrite' => true,
                     'resource_type' => 'image'
@@ -92,15 +92,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 $arr['avatar'] = $data['secure_url'];
             }
             $sql = $obj->update("users", $arr, "`users`.`id` = $payload[id]");
-            if ($sql) {
+            $isServerError = checkServerError($sql);
+            if (!$isServerError) {
+                http_response_code(200);
                 echo json_encode([
                     "status" => "success",
-                    "message" => "User updated successfully"
-                ]);
-            } else {
-                echo json_encode([
-                    "status" => "error",
-                    "message" => "User not updated"
+                    "message" => "User updated successfully!"
                 ]);
             }
         }
