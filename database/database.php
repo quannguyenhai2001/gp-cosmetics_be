@@ -3,6 +3,7 @@
 require '../vendor/autoload.php';
 Dotenv\Dotenv::createImmutable(dirname(__FILE__, 2))->load();
 
+date_default_timezone_set('Asia/Ho_Chi_Minh');
 class Database
 {
     private $database  = "";

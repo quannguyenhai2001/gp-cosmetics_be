@@ -14,7 +14,6 @@ $obj = new Database();
 //check method request
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $data = json_decode(file_get_contents("php://input", true));
-    date_default_timezone_set('Asia/Ho_Chi_Minh');
 
     //convert to string
     $display_name = htmlspecialchars(strip_tags($data->display_name));

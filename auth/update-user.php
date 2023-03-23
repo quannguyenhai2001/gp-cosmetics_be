@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 if (count($result)) {
                     if (password_verify($_POST['oldPassword'], $result[0]['password'])) {
                         $newPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
-                        $isUpdate = $obj->update("users", ['password' => $newPassword], "`users`.`id` = $payload[id]");
+                        $isUpdate = $obj->update("users", ['password' => $newPassword, 'update_at' => date("y-m-d H:i:s")], "`users`.`id` = $payload[id]");
                         $updateResult = $obj->getResult();
                         if ($isUpdate) {
                             http_response_code(200);
@@ -95,6 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 ]);
 
                 $arr['avatar'] = $data['secure_url'];
+                $arr['update_at'] = date("y-m-d H:i:s");
             }
             $isUpdateUser = $obj->update("users", $arr, "`users`.`id` = $payload[id]");
             $result = $obj->getResult();
