@@ -8,7 +8,6 @@ header("Access-Control-Allow-Methods: POST");
 //import file
 include_once("../database/database.php");
 include_once("../vendor/autoload.php");
-include_once "../middleware/check-server-error.php";
 
 //Namespace
 use \Firebase\JWT\JWT;
@@ -24,9 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $password =  htmlentities(strip_tags($data->password));
 
     $sql = $obj->select("users", "*", null, null, "email='$email'", null, null);
-    $isServerError = checkServerError($sql);
-    if (!$isServerError) {
-        $data = $obj->getResult();
+    $data = $obj->getResult();
+    if ($sql) {
         if (count($data)) {
             if (password_verify($password, $data[0]['password'])) {
                 $payload = array(
@@ -61,6 +59,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 "message" => "Email is incorrect!",
             ]);
         }
+    } else {
+        http_response_code(400);
+        echo json_encode([
+            "status" => "error",
+            "message" => $result,
+        ]);
     }
 } else {
     http_response_code(405);

@@ -9,7 +9,6 @@ header("Access-Control-Allow-Methods: POST");
 include_once "../database/database.php";
 include_once "../middleware/check-auth.php";
 include_once("../vendor/autoload.php");
-include_once "../middleware/check-server-error.php";
 
 use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
@@ -22,14 +21,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if ($payload) {
         if (isset($_POST['password'])) {
             $isUser = $obj->select("users", "*", null, null, "id='$payload[id]'", null, null);
-            $data = $obj->getResult();
-            $isServerError = checkServerError($isUser);
-            if (!$isServerError) {
-                if (count($data)) {
-                    if (password_verify($_POST['oldPassword'], $data[0]['password'])) {
+            $result = $obj->getResult();
+            if ($isUser) {
+                if (count($result)) {
+                    if (password_verify($_POST['oldPassword'], $result[0]['password'])) {
                         $newPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
-                        $sql = $obj->update("users", ['password' => $newPassword], "`users`.`id` = $payload[id]");
-                        if ($sql) {
+                        $isUpdate = $obj->update("users", ['password' => $newPassword], "`users`.`id` = $payload[id]");
+                        $updateResult = $obj->getResult();
+                        if ($isUpdate) {
                             http_response_code(200);
                             echo json_encode([
                                 "status" => "success",
@@ -39,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                             http_response_code(400);
                             echo json_encode([
                                 "status" => "error",
-                                "message" => "User not updated!"
+                                "message" => $updateResult,
                             ]);
                         }
                     } else {
@@ -56,11 +55,17 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                         "message" => "user not found!",
                     ));
                 }
+            } else {
+                http_response_code(400);
+                echo json_encode([
+                    "status" => "error",
+                    "message" => $result,
+                ]);
             }
         } else {
             $arr = array();
             if (isset($_POST['display_name'])) {
-                $arr['displayName'] = $_POST['displayName'];
+                $arr['display_name'] = $_POST['display_name'];
             }
             if (isset($_POST['sex'])) {
                 $arr['sex'] = $_POST['sex'];
@@ -91,13 +96,19 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
                 $arr['avatar'] = $data['secure_url'];
             }
-            $sql = $obj->update("users", $arr, "`users`.`id` = $payload[id]");
-            $isServerError = checkServerError($sql);
-            if (!$isServerError) {
+            $isUpdateUser = $obj->update("users", $arr, "`users`.`id` = $payload[id]");
+            $result = $obj->getResult();
+            if ($isUpdateUser) {
                 http_response_code(200);
                 echo json_encode([
                     "status" => "success",
                     "message" => "User updated successfully!"
+                ]);
+            } else {
+                http_response_code(400);
+                echo json_encode([
+                    "status" => "error",
+                    "message" => $result,
                 ]);
             }
         }
