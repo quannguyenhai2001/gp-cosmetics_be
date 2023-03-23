@@ -1,7 +1,7 @@
 <?php
 
 require '../vendor/autoload.php';
-Dotenv\Dotenv::createImmutable(dirname(__FILE__,2))->load();
+Dotenv\Dotenv::createImmutable(dirname(__FILE__, 2))->load();
 
 class Database
 {
@@ -12,13 +12,13 @@ class Database
     private $conn = false;
     private $pdo = "";
     private $result = array();
-    
-    public function __construct()     
-        {
-           $this->localhost  =$_ENV['LOCALHOST'];
-           $this->database  =$_ENV['DATABASE'];
-            $this->username  =$_ENV['USERNAME'];
-            $this->password  =$_ENV['PASSWORD'];
+
+    public function __construct()
+    {
+        $this->localhost  = $_ENV['LOCALHOST'];
+        $this->database  = $_ENV['DATABASE'];
+        $this->username  = $_ENV['USERNAME'];
+        $this->password  = $_ENV['PASSWORD'];
         if (!$this->conn) {
             $this->pdo = new PDO("mysql:host=" . $this->localhost . ";dbname=" . $this->database, $this->username, $this->password, array(PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC));
             $this->conn = true;
@@ -26,8 +26,8 @@ class Database
         if ($this->conn) {
             return true;
         }
-        if ($this->pdo->connect_error) {
-            array_push($this->result, $this->pdo->connect_error);
+        if ($this->pdo->errorInfo()) {
+            array_push($this->result, $this->pdo->errorInfo());
             return false;
         } else {
             return true;
@@ -88,10 +88,8 @@ class Database
             if ($limit) {
                 $sql .= " LIMIT $limit";
             }
-            $query = $this->pdo->query($sql);
-            if ($query->rowCount() > 0) {
-                //array
-                $this->result = $query->fetchAll(PDO::FETCH_ASSOC);
+            if ($this->pdo->query($sql)) {
+                $this->result = $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
                 return true;
             } else {
                 return false;
@@ -111,10 +109,8 @@ class Database
             }
             $sql = "UPDATE $table SET " . implode(', ', $arg) . " WHERE $where";
             if ($this->pdo->query($sql)) {
-                array_push($this->result, true);
                 return true;
             } else {
-                array_push($this->result, $this->pdo->error);
                 return false;
             }
         } else {
@@ -128,14 +124,10 @@ class Database
         if ($this->tableExist($table)) {
             $table_column = implode(',', array_keys($params));
             $table_value = implode("','", array_values($params));
-            //INSERT INTO TEN_BANG (cot1, cot2, cot3,...cotN) VALUES (gia_tri1, gia_tri2, gia_tri3,...gia_triN);
             $sql = "INSERT INTO $table ($table_column) VALUES ('$table_value')";
-            $query = $this->pdo->query($sql);
-            if ($query) {
-                array_push($this->result, true);
+            if ($this->pdo->query($sql)) {
                 return true;
             } else {
-                array_push($this->result, $this->pdo->error);
                 return false;
             }
         } else {
@@ -149,10 +141,8 @@ class Database
         if ($this->tableExist($table)) {
             $sql = "DELETE FROM $table WHERE $where";
             if ($this->pdo->query($sql)) {
-                array_push($this->result, true);
                 return true;
             } else {
-                array_push($this->result, $this->pdo->error);
                 return false;
             }
         } else {
@@ -197,5 +187,3 @@ class Database
         return $this->pdo;
     }
 }
-?>
-
