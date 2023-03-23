@@ -7,6 +7,7 @@ header("Access-Control-Allow-Methods: POST");
 
 //import file
 include_once("../database/database.php");
+include_once "../middleware/check-server-error.php";
 
 //initialize database
 $obj = new Database();
@@ -31,15 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $newPassword = password_hash($password, PASSWORD_DEFAULT);
 
     //check user by email
-    $isEmail = $obj->select("users", "email", null, null, "email='$email'", null, null);
-    if ($isEmail) {
-        http_response_code(400);
-        echo json_encode([
-            "status" => "error",
-            "field" => "email",
-            "message" => "Email already exist!",
-        ]);
-    } else {
+    $sql = $obj->select("users", "email", null, null, "email='$email'", null, null);
+    $data = $obj->getResult();
+    $isServerError = checkServerError($sql);
+    if (!count($data) && !$isServerError) {
         $array_param = [
             'display_name' => $display_name,
             'username' => $username,
@@ -66,9 +62,16 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             http_response_code(400);
             echo json_encode([
                 "status" => "error",
-                "message" => $result[0],
+                "message" => "Error!",
             ]);
         }
+    } else if (count($data) && !$isServerError) {
+        http_response_code(400);
+        echo json_encode([
+            "status" => "error",
+            "field" => "email",
+            "message" => "Email already exist!",
+        ]);
     }
 } else {
     http_response_code(405);

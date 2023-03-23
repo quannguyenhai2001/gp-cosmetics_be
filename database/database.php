@@ -109,10 +109,8 @@ class Database
             }
             $sql = "UPDATE $table SET " . implode(', ', $arg) . " WHERE $where";
             if ($this->pdo->query($sql)) {
-                array_push($this->result, true);
                 return true;
             } else {
-                array_push($this->result, $this->pdo->errorInfo());
                 return false;
             }
         } else {
@@ -127,12 +125,9 @@ class Database
             $table_column = implode(',', array_keys($params));
             $table_value = implode("','", array_values($params));
             $sql = "INSERT INTO $table ($table_column) VALUES ('$table_value')";
-            $query = $this->pdo->query($sql);
-            if ($query) {
-                array_push($this->result, true);
+            if ($this->pdo->query($sql)) {
                 return true;
             } else {
-                array_push($this->result, $this->pdo->errorInfo());
                 return false;
             }
         } else {
@@ -146,10 +141,8 @@ class Database
         if ($this->tableExist($table)) {
             $sql = "DELETE FROM $table WHERE $where";
             if ($this->pdo->query($sql)) {
-                array_push($this->result, true);
                 return true;
             } else {
-                array_push($this->result, $this->pdo->errorInfo());
                 return false;
             }
         } else {

@@ -8,6 +8,7 @@ header("Access-Control-Allow-Methods: DELETE");
 //import file
 include_once "../database/database.php";
 include_once "../middleware/check-auth.php";
+include_once "../middleware/check-server-error.php";
 
 //initialize database
 $obj = new Database();
@@ -18,20 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] == "DELETE") {
     if ($payload) {
         //get data from client
         $data = json_decode(file_get_contents("php://input", true));
-        //convert to string
         $id = $data->user_id;
         $sql = $obj->delete("users", "`users`.`id` = $id");
-        if ($sql) {
+        $isServerError = checkServerError($sql);
+        if (!$isServerError) {
             http_response_code(200);
             echo json_encode([
                 "status" => "success",
                 "message" => "Delete user success!"
-            ]);
-        } else {
-            http_response_code(404);
-            echo json_encode([
-                "status" => 'error',
-                "message" => "Delete user failed!"
             ]);
         }
     }
