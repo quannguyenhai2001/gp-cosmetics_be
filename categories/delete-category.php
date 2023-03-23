@@ -16,16 +16,14 @@ $obj = new Database();
 if ($_SERVER['REQUEST_METHOD'] == "DELETE") {
     $payload = checkAuth(getallheaders(), "admin");
     if ($payload) {
-        //get data from client
-        $data = json_decode(file_get_contents("php://input", true));
-        $id = $data->user_id;
-        $sql = $obj->delete("users", "`users`.`id` = $id");
+        $data = json_decode(file_get_contents("php://input"));
+        $sql = $obj->delete("categories", "`categories`.`id` = $data->id");
         $result = $obj->getResult();
         if ($sql) {
             http_response_code(200);
             echo json_encode([
-                "status" => "success",
-                "message" => "Delete user success!"
+                "status" => 'success',
+                "message" => "Category deleted successfully!"
             ]);
         } else {
             http_response_code(400);
@@ -39,6 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] == "DELETE") {
     http_response_code(405);
     echo json_encode(array(
         "status" => "error",
-        "message" => "Access denied!",
+        "message" => "Access denied!"
     ));
 }

@@ -9,7 +9,6 @@ header("Access-Control-Allow-Methods: GET");
 include_once "../middleware/check-auth.php";
 include_once("../database/database.php");
 include_once("../vendor/autoload.php");
-include_once "../middleware/check-server-error.php";
 
 //initialize database
 $obj = new Database();
@@ -20,13 +19,19 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $payload = checkAuth(getallheaders(), "admin");
     if ($payload) {
         $sql = $obj->select("users", "*", "", "", "", "", "");
-        $isServerError = checkServerError($sql);
-        if (!$isServerError) {
+        $result = $obj->getResult();
+        if ($sql) {
             $data = $obj->getResult();
             http_response_code(200);
             echo json_encode([
                 "status" => "success",
-                "data" => $data,
+                "data" => $result,
+            ]);
+        } else {
+            http_response_code(400);
+            echo json_encode([
+                "status" => "error",
+                "message" => $result,
             ]);
         }
     }

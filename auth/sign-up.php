@@ -7,7 +7,6 @@ header("Access-Control-Allow-Methods: POST");
 
 //import file
 include_once("../database/database.php");
-include_once "../middleware/check-server-error.php";
 
 //initialize database
 $obj = new Database();
@@ -15,7 +14,6 @@ $obj = new Database();
 //check method request
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $data = json_decode(file_get_contents("php://input", true));
-    date_default_timezone_set('Asia/Ho_Chi_Minh');
 
     //convert to string
     $display_name = htmlspecialchars(strip_tags($data->display_name));
@@ -32,45 +30,51 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $newPassword = password_hash($password, PASSWORD_DEFAULT);
 
     //check user by email
-    $sql = $obj->select("users", "email", null, null, "email='$email'", null, null);
-    $data = $obj->getResult();
-    $isServerError = checkServerError($sql);
-    if (!count($data) && !$isServerError) {
-        $array_param = [
-            'display_name' => $display_name,
-            'username' => $username,
-            'email' => $email,
-            'password' => $newPassword,
-            'phone_number' => $phone_number,
-            'address' => $address,
-            'sex' => $sex,
-            'age' => $age,
-            'role' => $role,
-            'create_at' => date("y-m-d H:i:s"),
-        ];
+    $isUser = $obj->select("users", "email", null, null, "email='$email'", null, null);
+    $result = $obj->getResult();
+    if ($isUser) {
+        if (!count($result)) {
+            $array_param = [
+                'display_name' => $display_name,
+                'username' => $username,
+                'email' => $email,
+                'password' => $newPassword,
+                'phone_number' => $phone_number,
+                'address' => $address,
+                'sex' => $sex,
+                'age' => $age,
+                'role' => $role,
+                'create_at' => date("y-m-d H:i:s"),
+            ];
 
-        //add new user to database
-        $isSql = $obj->insert('users', $array_param);
-        $result = $obj->getResult();
-        if ($isSql) {
-            http_response_code(201);
-            echo json_encode([
-                "status" => "success",
-                "message" => "Create user successfully!",
-            ]);
+            //add new user to database
+            $isCreate = $obj->insert('users', $array_param);
+            if ($isCreate) {
+                http_response_code(201);
+                echo json_encode([
+                    "status" => "success",
+                    "message" => "Create user successfully!",
+                ]);
+            } else {
+                http_response_code(400);
+                echo json_encode([
+                    "status" => "error",
+                    "message" => $createResult,
+                ]);
+            }
         } else {
             http_response_code(400);
             echo json_encode([
                 "status" => "error",
-                "message" => "Error!",
+                "field" => "email",
+                "message" => "Email already exist!",
             ]);
         }
-    } else if (count($data) && !$isServerError) {
+    } else {
         http_response_code(400);
         echo json_encode([
             "status" => "error",
-            "field" => "email",
-            "message" => "Email already exist!",
+            "message" => $result,
         ]);
     }
 } else {

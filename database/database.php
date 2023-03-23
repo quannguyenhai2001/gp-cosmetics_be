@@ -3,6 +3,7 @@
 require '../vendor/autoload.php';
 Dotenv\Dotenv::createImmutable(dirname(__FILE__, 2))->load();
 
+date_default_timezone_set('Asia/Ho_Chi_Minh');
 class Database
 {
     private $database  = "";
@@ -71,30 +72,32 @@ class Database
     //get data
     public function select($table, $column = "*", $join = null, $on = null, $where = null, $order = null, $limit = null)
     {
-        if ($this->tableExist($table)) {
-            $sql = "SELECT $column FROM $table";
-            if ($join) {
-                $sql .= " JOIN $join";
-            }
-            if ($on) {
-                $sql .= " ON $on";
-            }
-            if ($where) {
-                $sql .= " WHERE $where";
-            }
-            if ($order) {
-                $sql .= " ORDER BY $order";
-            }
-            if ($limit) {
-                $sql .= " LIMIT $limit";
-            }
-            if ($this->pdo->query($sql)) {
-                $this->result = $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            if ($this->tableExist($table)) {
+                $sql = "SELECT $column FROM $table";
+                if ($join) {
+                    $sql .= " JOIN $join";
+                }
+                if ($on) {
+                    $sql .= " ON $on";
+                }
+                if ($where) {
+                    $sql .= " WHERE $where";
+                }
+                if ($order) {
+                    $sql .= " ORDER BY $order";
+                }
+                if ($limit) {
+                    $sql .= " LIMIT $limit";
+                }
+                $query = $this->pdo->query($sql);
+                $this->result = $query->fetchAll(PDO::FETCH_ASSOC);
                 return true;
             } else {
                 return false;
             }
-        } else {
+        } catch (PDOException $err) {
+            array_push($this->result, $err);
             return false;
         }
     }
@@ -102,18 +105,20 @@ class Database
     //update
     public function update($table, $params = array(), $where = null)
     {
-        if ($this->tableExist($table)) {
-            $arg = array();
-            foreach ($params as $key => $value) {
-                $arg[] = "$key = '$value'";
-            }
-            $sql = "UPDATE $table SET " . implode(', ', $arg) . " WHERE $where";
-            if ($this->pdo->query($sql)) {
+        try {
+            if ($this->tableExist($table)) {
+                $arg = array();
+                foreach ($params as $key => $value) {
+                    $arg[] = "$key = '$value'";
+                }
+                $sql = "UPDATE $table SET " . implode(', ', $arg) . " WHERE $where";
+                $this->pdo->query($sql);
                 return true;
             } else {
                 return false;
             }
-        } else {
+        } catch (PDOException $err) {
+            array_push($this->result, $err);
             return false;
         }
     }
@@ -121,16 +126,18 @@ class Database
     //create
     public function insert($table, $params = array())
     {
-        if ($this->tableExist($table)) {
-            $table_column = implode(',', array_keys($params));
-            $table_value = implode("','", array_values($params));
-            $sql = "INSERT INTO $table ($table_column) VALUES ('$table_value')";
-            if ($this->pdo->query($sql)) {
+        try {
+            if ($this->tableExist($table)) {
+                $table_column = implode(',', array_keys($params));
+                $table_value = implode("','", array_values($params));
+                $sql = "INSERT INTO $table ($table_column) VALUES ('$table_value')";
+                $this->pdo->query($sql);
                 return true;
             } else {
                 return false;
             }
-        } else {
+        } catch (PDOException $err) {
+            array_push($this->result, $err);
             return false;
         }
     }
@@ -138,14 +145,16 @@ class Database
     //delete
     public function delete($table, $where = null)
     {
-        if ($this->tableExist($table)) {
-            $sql = "DELETE FROM $table WHERE $where";
-            if ($this->pdo->query($sql)) {
+        try {
+            if ($this->tableExist($table)) {
+                $sql = "DELETE FROM $table WHERE $where";
+                $this->pdo->query($sql);
                 return true;
             } else {
                 return false;
             }
-        } else {
+        } catch (PDOException $err) {
+            array_push($this->result, $err);
             return false;
         }
     }
