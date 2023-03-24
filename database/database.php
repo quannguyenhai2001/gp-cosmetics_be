@@ -158,37 +158,6 @@ class Database
             return false;
         }
     }
-    //filter product
-    public function selectByFilter($table, $column = "*", $join = null, $on = null, $limit = null, $cate_Id, $price, $promotion, $manu_Id)
-    {
-        if ($this->tableExist($table)) {
-            $sql = "SELECT $column FROM $table";
-            if ($join) {
-                $sql .= " JOIN $join";
-            }
-            if ($on) {
-                $sql .= " ON $on";
-            }
-            $priceVal = "price >= $price[0] and price <= $price[1]";
-            $promotionVal = "promotion > $promotion";
-            $manuIdVal = "manu_Id $manu_Id";
-            $cateIdVal = "cate_Id = $cate_Id";
-            $sql .= " WHERE $priceVal and $promotionVal and $manuIdVal and $cateIdVal";
-            if ($limit) {
-                $sql .= " LIMIT $limit";
-            }
-            $query = $this->pdo->query($sql);
-            if ($query->rowCount() > 0) {
-                //array
-                $this->result = $query->fetchAll(PDO::FETCH_ASSOC);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
 
     //get connection
     public function getConnection()
