@@ -78,7 +78,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         ]);
     }
 } else {
-    http_response_code(405);
     echo json_encode(array(
         "status" => "error",
         "message" => "Access denied!"
