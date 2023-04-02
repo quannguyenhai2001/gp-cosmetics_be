@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 http_response_code(201);
                 echo json_encode([
                     "status" => "success",
-                    "message" => "Create user successfully!",
+                    "message" => "Tạo người dùng thành công",
                 ]);
             } else {
                 http_response_code(400);
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             echo json_encode([
                 "status" => "error",
                 "field" => "email",
-                "message" => "Email already exist!",
+                "message" => "Email đã tồn tại",
             ]);
         }
     } else {
