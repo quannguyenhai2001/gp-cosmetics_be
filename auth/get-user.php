@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
             http_response_code(200);
             echo json_encode([
                 "status" => "success",
-                "data" => $result,
+                "data" => $result[0],
             ]);
         } else {
             http_response_code(400);

@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 http_response_code(200);
                 echo json_encode([
                     "status" => "success",
-                    "message" => "User updated successfully!"
+                    "message" => $_POST['address']
                 ]);
             } else {
                 http_response_code(400);
@@ -115,7 +115,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         }
     }
 } else {
-    http_response_code(405);
     echo json_encode(array(
         "status" => "error",
         "message" => "Access denied!",
