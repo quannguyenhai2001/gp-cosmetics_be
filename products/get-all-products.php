@@ -1,8 +1,5 @@
 <?php
 //add headers
-
-use function PHPSTORM_META\type;
-
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header("Content-Type: application/json; charset=UTF-8");
