@@ -13,8 +13,7 @@ $obj = new Database();
 
 //check method request
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
-    $data = json_decode(file_get_contents("php://input", true));
-    $product_id = $data->product_id;
+    $product_id = $_GET['product_id'];
     $sql = $obj->select("product_details", "product_details.`id`,product_details.`product_information`,product_details.`ingredients`,product_details.`usage_instructions`, product_details.`create_at`, product_details.`update_at`", "products", "products.`id`=product_details.`product_id`", "products.`id` = '$product_id'", "", "");
     $result = $obj->getResult();
     if ($sql) {

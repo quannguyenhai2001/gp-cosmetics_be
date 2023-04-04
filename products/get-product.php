@@ -13,9 +13,9 @@ $obj = new Database();
 
 //check method request
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
-    $data = json_decode(file_get_contents("php://input", true));
-    $product_id = $data->product_id;
-    $sql = $obj->select("products", "products.`id`,`products`.`name` as product_name,products.`thumbnail_url`,products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`", "manufacturers", "manufacturers.`id`=`products`.`manufacturer_id`", "products.`id` = '$product_id'", "", "");
+    $product_id = $_GET['product_id'];
+
+    $sql = $obj->select("products", "products.`id`,`products`.`name` as product_name,products.`thumbnail_url`,products.`gallery_image_urls`, products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`", "manufacturers", "manufacturers.`id`=`products`.`manufacturer_id`", "products.`id` = '$product_id'", "", "");
     $result = $obj->getResult();
     if ($sql) {
         if (count($result)) {
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
         echo json_encode(
             [
                 "status" => "success",
-                "data" => $result,
+                "data" => $result[0],
             ]
         );
     } else {
