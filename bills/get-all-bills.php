@@ -6,22 +6,24 @@ header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: GET");
 
 //import file
-include_once "../database/database.php";
+include_once("../database/database.php");
+include_once("../vendor/autoload.php");
 
 //initialize database
 $obj = new Database();
 
+
 //check method request
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
-    $product_id = $_GET['product_id'];
-    $sql = $obj->select("ratings", "ratings.*, users.`display_name`, users.`avatar`", "users", "ratings.`user_id` = users.`id`", "ratings.`product_id` = '$product_id'", "", "");
+    $sql = $obj->select("bills", "*", "", "", "bills.`user_id` = 32", "", "");
     $result = $obj->getResult();
     if ($sql) {
+        $data = $obj->getResult();
         http_response_code(200);
-        echo json_encode(array(
+        echo json_encode([
             "status" => "success",
             "data" => $result,
-        ));
+        ]);
     } else {
         http_response_code(400);
         echo json_encode([
@@ -30,8 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
         ]);
     }
 } else {
+    http_response_code(405);
     echo json_encode(array(
         "status" => "error",
-        "message" => "Access denied!"
+        "message" => "Access denied!",
     ));
 }
