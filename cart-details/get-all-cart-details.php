@@ -16,7 +16,6 @@ $obj = new Database();
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $payload = checkAuth(getallheaders(), "user");
     if ($payload) {
-        $data = json_decode(file_get_contents("php://input", true));
         $sql = $obj->select("products", "products.`id`,`products`.`name` as product_name,products.`thumbnail_url`,products.`price`,products.`promotion`, products.`create_at`, products.`update_at`", "cart_details JOIN cart JOIN ", "products.`id` = cart_details.`product_id` and cart_details.`cart_id` = cart`.id`", "cart.`user_id` = $payload[id]", "", "");
         $result = $obj->getResult();
         if ($sql) {

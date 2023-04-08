@@ -6,33 +6,26 @@ header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: GET");
 
 //import file
-include_once("../database/database.php");
-include_once("../vendor/autoload.php");
+include_once "../database/database.php";
 
 //initialize database
 $obj = new Database();
 
-
 //check method request
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $conditionString = "";
-    if (isset($_GET['status']) && $_GET['status'] !== "all") {
-        $conditionString  = $conditionString . "status LIKE '%{$_GET['status']}%' " . " and ";
-    }
-    if (isset($_GET['user_id'])) {
-        $conditionString  = $conditionString . "user_id = " . $_GET['user_id']  . " and ";
+    if (isset($_GET['bill_id'])) {
+        $conditionString  = $conditionString . "bill_id = " . $_GET['bill_id'] . " and ";
     }
     $conditionString =  rtrim($conditionString, " and ");
-
-    $sql = $obj->select("bills", "*", "", "", $conditionString, "", "");
+    $sql = $obj->select("bill_details", "*", "", "", $conditionString, "", "");
     $result = $obj->getResult();
     if ($sql) {
-        $data = $obj->getResult();
         http_response_code(200);
-        echo json_encode([
+        echo json_encode(array(
             "status" => "success",
             "data" => $result,
-        ]);
+        ));
     } else {
         http_response_code(400);
         echo json_encode([
@@ -43,6 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
 } else {
     echo json_encode(array(
         "status" => "error",
-        "message" => "Access denied!",
+        "message" => "Access denied!"
     ));
 }
