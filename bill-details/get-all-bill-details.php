@@ -21,11 +21,45 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $sql = $obj->select("bill_details", "*", "", "", $conditionString, "", "");
     $result = $obj->getResult();
     if ($sql) {
-        http_response_code(200);
-        echo json_encode(array(
-            "status" => "success",
-            "data" => $result,
-        ));
+        $conditionString1 = "";
+        if (isset($_GET['user_id'])) {
+            $conditionString1  = $conditionString1 . "user_id = " . $_GET['user_id'] . " and ";
+        }
+        $conditionString1 =  rtrim($conditionString1, " and ");
+
+        $isGetRating = $obj->select("ratings", "*", "", "",  $conditionString1, "");
+        $ratingResult = $obj->getResult();
+        if ($isGetRating) {
+            foreach ($result as $product => $value) {
+                if (count($ratingResult)) {
+                    foreach ($ratingResult as $productRating => $valueRating) {
+                        echo 1;
+                        if ($value['id'] == $valueRating['bill_details_id'] && $value['product_id'] == $valueRating['product_id']) {
+                            $result[$product]['is_rated'] = true;
+                            goto next;
+                        } else {
+                            $result[$product]['is_rated'] = false;
+                        }
+                    }
+                } else {
+                    $result[$product]['is_rated'] = false;
+                }
+
+                next:
+                continue;
+            }
+            http_response_code(200);
+            echo json_encode(array(
+                "status" => "success",
+                "data" => $result,
+            ));
+        } else {
+            http_response_code(400);
+            echo json_encode([
+                "status" => "error",
+                "message" => $ratingResult,
+            ]);
+        }
     } else {
         http_response_code(400);
         echo json_encode([
