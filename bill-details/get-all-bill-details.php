@@ -33,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
             foreach ($result as $product => $value) {
                 if (count($ratingResult)) {
                     foreach ($ratingResult as $productRating => $valueRating) {
-                        echo 1;
                         if ($value['id'] == $valueRating['bill_details_id'] && $value['product_id'] == $valueRating['product_id']) {
                             $result[$product]['is_rated'] = true;
                             goto next;
