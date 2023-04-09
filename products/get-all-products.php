@@ -15,7 +15,7 @@ $obj = new Database();
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
     //filter
     $pagination = null;
-    $limit = 10;
+    $limit = 15;
 
     if (isset($_GET['use_page']) && $_GET['use_page'] == 1) {
         $offsetIndex = isset($_GET['page']) ? ($limit * floatval($_GET['page'])) - $limit : 0;
@@ -27,11 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     if (isset($_GET['category_id'])) {
         $conditionString  = $conditionString . "category_id = " . $_GET['category_id'] . " and ";
     }
-    if (isset($_GET['price'])) {
-        $conditionString  = $conditionString . "price >= " . $_GET['price'][0] . " and " . "price <= " . $_GET['price'][1] . " and ";
+    if (isset($_GET['start_price'])) {
+        $conditionString  = $conditionString . "price >= " . $_GET['start_price'] . " and ";
+    }
+    if (isset($_GET['end_price'])) {
+        $conditionString  = $conditionString  . "price <= " . $_GET['end_price'] . " and ";
     }
     if (isset($_GET['promotion'])) {
-        $conditionString  = $conditionString . "promotion >= " . $_GET['promotion'] . " and ";
+        $conditionString  = $conditionString . "promotion > 0" . " and ";
     }
     if (isset($_GET['manufacturer_id'])) {
         $conditionString  = $conditionString . "manufacturer_id = " . $_GET['manufacturer_id'] . " and ";
