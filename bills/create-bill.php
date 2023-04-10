@@ -60,10 +60,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                         'product_id' => $product['id'],
                         'create_at' => date("d-m-Y"),
                     ];
+                    //delete product in carts
+                    $deleteCart = $obj->delete("carts", "id = $product[id]");
+                    //add bill details 
                     $addProInfo = $obj->insert('bill_details', $array_param);
                     //convert pro_Id from product
                     $size_id = intval($product['size_id']);
-                    // select amount from product to caculate new amount
+                    // select amount from product to calculate new amount
                     $amount = $obj->select("sizes", "quantity", "", "", "id = '$size_id'", "", "", "", "", "");
                     $result = $obj->getResult();
                     $value = intval($result[0]['quantity']) - intval($product['quantity']);
