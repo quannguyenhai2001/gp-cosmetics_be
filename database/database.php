@@ -131,7 +131,9 @@ class Database
                 $table_column = implode(',', array_keys($params));
                 $table_value = implode("','", array_values($params));
                 $sql = "INSERT INTO $table ($table_column) VALUES ('$table_value')";
-                $this->pdo->query($sql);
+
+                $query = $this->pdo->query($sql);
+                $this->result = $this->pdo->lastInsertId();
                 return true;
             } else {
                 return false;
