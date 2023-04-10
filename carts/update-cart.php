@@ -26,7 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] == "PUT") {
         if ($sql) {
             if (count($result)) {
                 $sql = $obj->update("carts", [
-                    "quantity" => $quantity
+                    "quantity" => $quantity,
+                    'update_at' => date("y-m-d H:i:s"),
                 ], "id = $id");
                 if ($sql) {
                     http_response_code(200);
@@ -41,8 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] == "PUT") {
                         "message" => $result,
                     ]);
                 }
-            } else {
-                echo 1;
             }
         } else {
             http_response_code(400);
