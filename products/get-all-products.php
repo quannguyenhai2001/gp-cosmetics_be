@@ -27,6 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     if (isset($_GET['category_id'])) {
         $conditionString  = $conditionString . "category_id = " . $_GET['category_id'] . " and ";
     }
+    if (isset($_GET['product_name'])) {
+        $conditionString  = $conditionString . "(products.`name` LIKE '%{$_GET['product_name']}%')" . " and ";
+    }
+    if (isset($_GET['manufacturer_name'])) {
+        $conditionString  = $conditionString . "(manufacturers.`name` LIKE '%{$_GET['manufacturer_name']}%')" . " and ";
+    }
     if (isset($_GET['start_price'])) {
         $conditionString  = $conditionString . "price >= " . $_GET['start_price'] . " and ";
     }
