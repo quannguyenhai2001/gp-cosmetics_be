@@ -13,11 +13,12 @@ $obj = new Database();
 
 //check method request
 if ($_SERVER['REQUEST_METHOD'] == "DELETE") {
-    $payload = checkAuth(getallheaders(), 'admin');
+    $payload = checkAuth(getallheaders(), null);
     if ($payload) {
         $data = json_decode(file_get_contents("php://input", true));
-        $product_id = $data->product_id;
-        $sql = $obj->delete("products", "`products`.`id` = $product_id");
+        $ids = $data->ids;
+        $string = '(' . implode(',', $ids) . ')';
+        $sql = $obj->delete("products", "`products`.`id` IN  $string");
         $result = $obj->getResult();
         if ($sql) {
             http_response_code(200);
