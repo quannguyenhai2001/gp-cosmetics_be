@@ -22,19 +22,29 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
         $pagination = $limit . " OFFSET " . $offsetIndex;
     }
     $conditionString = "";
-    if (isset($_GET['product_id'])) {
-        $conditionString  = $conditionString . "product_id = " . $_GET['product_id']  . " and ";
+    if (isset($_GET['size_name'])) {
+        $conditionString  = $conditionString . "(sizes.`label` LIKE '%{$_GET['size_name']}%')" . " and ";
     }
     $conditionString =  rtrim($conditionString, " and ");
 
     $sql = $obj->select("sizes", "*", "", "", $conditionString, "", $pagination);
     $result = $obj->getResult();
     if ($sql) {
-        $data = $obj->getResult();
+        //total
+        $pageInfo = array();
+        $total = $obj->getResult($obj->select("sizes", "COUNT(*)", "", "", $conditionString, "", ""));
+        $pageInfo["total"] = floatval($total[0]["COUNT(*)"]);
+        if (isset($_GET['use_page']) && $_GET['use_page'] == 1) {
+            $pageInfo["page"] = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $pageInfo["limit"] = $limit;
+            $pageInfo["total_page"] = ceil($total[0]["COUNT(*)"] / $limit);
+        }
+
         http_response_code(200);
         echo json_encode([
             "status" => "success",
-            "data" => $result,
+            "data" => $result, "pageInfo" =>  $pageInfo,
+
         ]);
     } else {
         http_response_code(400);
