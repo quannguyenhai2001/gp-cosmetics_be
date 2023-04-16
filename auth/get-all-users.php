@@ -18,14 +18,32 @@ $obj = new Database();
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $payload = checkAuth(getallheaders(), "admin");
     if ($payload) {
-        $sql = $obj->select("users", "*", "", "", "", "", "");
+        $pagination = null;
+        $limit = 15;
+
+        if (isset($_GET['use_page']) && $_GET['use_page'] == 1) {
+            $offsetIndex = isset($_GET['page']) ? ($limit * floatval($_GET['page'])) - $limit : 0;
+            $pagination = $limit . " OFFSET " . $offsetIndex;
+        }
+
+        $sql = $obj->select("users", "*", "", "", "role LIKE 'user'", "", $pagination);
         $result = $obj->getResult();
         if ($sql) {
-            $data = $obj->getResult();
+            //total
+            $pageInfo = array();
+            $total = $obj->getResult($obj->select("users", "COUNT(*)", "", "", "role LIKE 'user'", "", ""));
+
+            $pageInfo["total"] = floatval($total[0]["COUNT(*)"]);
+            if (isset($_GET['use_page']) && $_GET['use_page'] == 1) {
+                $pageInfo["page"] = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                $pageInfo["limit"] = $limit;
+                $pageInfo["total_page"] = ceil($total[0]["COUNT(*)"] / $limit);
+            }
             http_response_code(200);
             echo json_encode([
                 "status" => "success",
-                "data" => $result,
+                "data" => $result, "pageInfo" =>  $pageInfo,
+
             ]);
         } else {
             http_response_code(400);
