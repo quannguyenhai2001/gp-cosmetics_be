@@ -14,13 +14,30 @@ $obj = new Database();
 
 //check method request
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
-    $sql = $obj->select("manufacturers", "*", "", "", "", "", "");
+    $pagination = null;
+    $limit = 15;
+    if (isset($_GET['use_page']) && $_GET['use_page'] == 1) {
+        $offsetIndex = isset($_GET['page']) ? ($limit * floatval($_GET['page'])) - $limit : 0;
+        $pagination = $limit . " OFFSET " . $offsetIndex;
+    }
+    $sql = $obj->select("manufacturers", "*", "", "", "", "", $pagination);
     $result = $obj->getResult();
     if ($sql) {
+        $pageInfo = array();
+        $total = $obj->getResult($obj->select("manufacturers", "COUNT(*)", "", "", "", "", ""));
+
+        $pageInfo["total"] = floatval($total[0]["COUNT(*)"]);
+        if (isset($_GET['use_page']) && $_GET['use_page'] == 1) {
+            $pageInfo["page"] = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $pageInfo["limit"] = $limit;
+            $pageInfo["total_page"] = ceil($total[0]["COUNT(*)"] / $limit);
+        }
         http_response_code(200);
         echo json_encode([
             "status" => "success",
             "data" => $result,
+            "pageInfo" =>  $pageInfo,
+
         ]);
     } else {
         http_response_code(400);
