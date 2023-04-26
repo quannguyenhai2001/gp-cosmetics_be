@@ -20,12 +20,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $star_rating = $data->star_rating;
         $comment = $data->comment;
         $product_id  = $data->product_id;
-        $bill_details_id = $data->bill_details_id;
+        $bill_detail_id = $data->bill_detail_id;
         $sql = $obj->insert("ratings", [
             "star_rating" => $star_rating,
             "comment" => $comment,
             "product_id" => $product_id,
-            "bill_details_id" => $bill_details_id,
+            "bill_detail_id" => $bill_detail_id,
             "user_id" => $payload['id'],
             'create_at' => date("d-m-Y"),
         ]);

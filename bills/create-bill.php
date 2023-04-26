@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 'delivery_address' => $data->delivery_address,
                 'payment_method' => $data->payment_method,
                 'note' => $data->note,
-                'status' => "Pending",
+                'status' => "delivering",
                 'total_price' => $data->total_price,
                 'create_at' => date("d-m-Y"),
                 'user_id' => $payload['id']
