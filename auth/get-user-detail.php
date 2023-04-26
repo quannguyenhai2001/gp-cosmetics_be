@@ -1,32 +1,30 @@
 <?php
 //add headers
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: DELETE");
+header("Access-Control-Allow-Methods: GET");
+header("Access-Control-Allow-Headers: *");
 
 //import file
-include_once "../database/database.php";
 include_once "../middleware/check-auth.php";
+include_once("../database/database.php");
+include_once("../vendor/autoload.php");
 
-//initialize database
 $obj = new Database();
 
-//check method request
-if ($_SERVER['REQUEST_METHOD'] == "DELETE") {
+if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $payload = checkAuth(getallheaders(), "admin");
     if ($payload) {
-        //get data from client
-        $data = json_decode(file_get_contents("php://input", true));
-        $ids = $data->ids;
-        $string = '(' . implode(',', $ids) . ')';
-        $sql = $obj->delete("users", "`users`.`id` IN  $string");
+        $user_id = $_GET['user_id'];
+
+
+        $sql = $obj->select("users", "*", null, null, "id='$user_id'", null, null);
         $result = $obj->getResult();
         if ($sql) {
             http_response_code(200);
             echo json_encode([
                 "status" => "success",
-                "message" => "Delete user success!"
+                "data" =>  $result[0],
             ]);
         } else {
             http_response_code(400);
@@ -37,9 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] == "DELETE") {
         }
     }
 } else {
-
     echo json_encode(array(
         "status" => "error",
-        "message" => "Access denied!",
+        "message" => "Access denied!"
     ));
 }
