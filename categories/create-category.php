@@ -17,10 +17,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $payload = checkAuth(getallheaders(), "admin");
     if ($payload) {
         $data = json_decode(file_get_contents("php://input", true));
-        $name = htmlspecialchars(strip_tags($data->name));
-        $father_category_id = htmlspecialchars(strip_tags($data->father_category_id));
+        $category_name = htmlspecialchars(strip_tags($data->category_name));
+        $father_category_id = 0;
+        if ($data->father_category_id) {
+            $father_category_id = $data->father_category_id;
+        }
         $sql = $obj->insert("categories", [
-            "name" => $name,
+            "name" => $category_name,
             "father_category_id" => $father_category_id,
             'create_at' => date("y-m-d H:i:s"),
         ]);
@@ -29,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             http_response_code(200);
             echo json_encode([
                 "status" => 'success',
-                "message" => "Category created successfully!"
+                "message" => "Category created successfully!",
             ]);
         } else {
             http_response_code(400);
@@ -40,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         }
     }
 } else {
-    http_response_code(405);
+
     echo json_encode(array(
         "status" => "error",
         "message" => "Access denied!",
