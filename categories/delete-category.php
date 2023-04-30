@@ -16,8 +16,11 @@ $obj = new Database();
 if ($_SERVER['REQUEST_METHOD'] == "DELETE") {
     $payload = checkAuth(getallheaders(), "admin");
     if ($payload) {
-        $data = json_decode(file_get_contents("php://input"));
-        $sql = $obj->delete("categories", "`categories`.`id` = $data->id");
+        $data = json_decode(file_get_contents("php://input", true));
+        $ids = $data->ids;
+        $string = '(' . implode(',', $ids) . ')';
+
+        $sql = $obj->delete("categories", "`categories`.`id` IN  $string");
         $result = $obj->getResult();
         if ($sql) {
             http_response_code(200);
@@ -34,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] == "DELETE") {
         }
     }
 } else {
-    http_response_code(405);
     echo json_encode(array(
         "status" => "error",
         "message" => "Access denied!"
