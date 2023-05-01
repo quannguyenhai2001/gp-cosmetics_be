@@ -15,6 +15,14 @@ $obj = new Database();
 
 //check method request
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
+    $pagination = null;
+    $limit = 15;
+
+    if (isset($_GET['use_page']) && $_GET['use_page'] == 1) {
+        $offsetIndex = isset($_GET['page']) ? ($limit * floatval($_GET['page'])) - $limit : 0;
+        $pagination = $limit . " OFFSET " . $offsetIndex;
+    }
+
     $conditionString = "";
     if (isset($_GET['status']) && $_GET['status'] !== "all") {
         $conditionString  = $conditionString . "status LIKE '%{$_GET['status']}%' " . " and ";
@@ -24,14 +32,23 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     }
     $conditionString =  rtrim($conditionString, " and ");
 
-    $sql = $obj->select("bills", "*", "", "", $conditionString, "", "");
+    $sql = $obj->select("bills", "bills.*, users.username", "users", "bills.`user_id` = users.`id`", $conditionString, "", $pagination);
     $result = $obj->getResult();
     if ($sql) {
-        $data = $obj->getResult();
+        $pageInfo = array();
+        $total = $obj->getResult($obj->select("bills", "COUNT(*)", "", "", $conditionString, "", ""));
+
+        $pageInfo["total"] = floatval($total[0]["COUNT(*)"]);
+        if (isset($_GET['use_page']) && $_GET['use_page'] == 1) {
+            $pageInfo["page"] = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $pageInfo["limit"] = $limit;
+            $pageInfo["total_page"] = ceil($total[0]["COUNT(*)"] / $limit);
+        }
         http_response_code(200);
         echo json_encode([
             "status" => "success",
             "data" => $result,
+            "pageInfo" =>  $pageInfo,
         ]);
     } else {
         http_response_code(400);
