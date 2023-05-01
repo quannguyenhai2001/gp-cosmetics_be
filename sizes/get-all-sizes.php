@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     }
     $conditionString = "";
     if (isset($_GET['size_name'])) {
-        $conditionString  = $conditionString . "(sizes.`label` LIKE '%{$_GET['size_name']}%')" . " and ";
+        $conditionString  = $conditionString . "(sizes.`name` LIKE '%{$_GET['size_name']}%')" . " and ";
     }
     $conditionString =  rtrim($conditionString, " and ");
 
