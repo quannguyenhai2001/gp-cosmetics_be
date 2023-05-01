@@ -16,24 +16,19 @@ if ($_SERVER['REQUEST_METHOD'] == "PUT") {
     $payload = checkAuth(getallheaders(), "admin");
     if ($payload) {
         $data = json_decode(file_get_contents("php://input", true));
-        $category_name = htmlspecialchars(strip_tags($data->category_name));
-        $id = htmlspecialchars(strip_tags($data->id));
-
-        $father_category_id = 0;
-        if (isset($data->father_category_id)) {
-            $father_category_id = $data->father_category_id;
+        $valuesToUpdate = $data->value;
+        foreach ($valuesToUpdate as $value) {
+            $sql = $obj->update("bills", [
+                "status" => $value->status,
+                'update_at' => date("y-m-d H:i:s"),
+            ], "id = $value->id");
         }
-        $sql = $obj->update("categories", [
-            "name" => $category_name,
-            "father_category_id" => $father_category_id,
-            'update_at' => date("y-m-d H:i:s"),
-        ], "id = $id");
         $result = $obj->getResult();
         if ($sql) {
             http_response_code(200);
             echo json_encode([
                 "status" => "success",
-                "message" => "Update category successfully!"
+                "message" => "Update bills successfully!"
             ]);
         } else {
             http_response_code(400);
