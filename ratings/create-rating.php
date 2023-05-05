@@ -19,15 +19,15 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $data = json_decode(file_get_contents("php://input", true));
         $star_rating = $data->star_rating;
         $comment = $data->comment;
-        $product_id  = $data->product_id;
+        $size_id  = $data->size_id;
         $bill_detail_id = $data->bill_detail_id;
         $sql = $obj->insert("ratings", [
             "star_rating" => $star_rating,
             "comment" => $comment,
-            "product_id" => $product_id,
+            "size_id" => $size_id,
             "bill_detail_id" => $bill_detail_id,
             "user_id" => $payload['id'],
-            'create_at' => date("d-m-Y"),
+            'create_at' => date("y-m-d H:i:s"),
         ]);
         $result  = $obj->getResult();
         if ($sql) {

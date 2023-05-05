@@ -16,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $payload = checkAuth(getallheaders(), "user");
     if ($payload) {
         $data = json_decode(file_get_contents("php://input", true));
-        $product_id = $data->product_id;
         $size_id = $data->size_id;
         $quantity = $data->quantity;
 
@@ -43,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 }
             } else {
                 $isAddToCart = $obj->insert("carts", [
-                    "product_id" => $product_id,
                     "size_id" => $size_id,
                     "quantity" => $quantity,
                     "user_id" => "$payload[id]",

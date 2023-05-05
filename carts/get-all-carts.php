@@ -16,7 +16,7 @@ $obj = new Database();
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $payload = checkAuth(getallheaders(), "user");
     if ($payload) {
-        $sql = $obj->select("carts", "carts.`id`, carts.`quantity`, carts.`product_id`, products.`name`, products.`price`, products.`promotion`, products.`thumbnail_url`, sizes.`name`, sizes.`additional_price`, carts.`create_at`, carts.`update_at`", "products JOIN sizes ", "sizes.`product_id` = products.`id` and carts.`size_id` = sizes.`id`", "carts.`user_id` = $payload[id]", "", "");
+        $sql = $obj->select("carts", "carts.`id`, carts.`quantity`, products.`name`, products.`price`, products.`promotion`, products.`thumbnail_url`, sizes.`name` as size_name, sizes.`additional_price`, carts.`create_at`, carts.`update_at`", "sizes JOIN products ", "carts.`size_id` = sizes.`id` and sizes.`product_id` = products.`id`", "carts.`user_id` = $payload[id]", "", "");
         $result = $obj->getResult();
         if ($sql) {
             http_response_code(200);

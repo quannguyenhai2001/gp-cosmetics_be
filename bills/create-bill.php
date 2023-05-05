@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if ($payload) {
         $data = json_decode(file_get_contents("php://input", true));
 
-        $sql = $obj->select("carts", "carts.`id`, carts.`quantity`, carts.`product_id`, products.`name`, products.`price`, products.`promotion`, products.`thumbnail_url`, sizes.`id` as size_id, sizes.`name` as size_name, sizes.`additional_price`, carts.`create_at`, carts.`update_at`", "products JOIN sizes ", "sizes.`product_id` = products.`id` and carts.`size_id` = sizes.`id`", "carts.`user_id` = $payload[id]", "", "");
+        $sql = $obj->select("carts", "carts.`id`, carts.`quantity`, products.`name`, products.`price`, products.`promotion`, products.`thumbnail_url`, sizes.`id` as size_id, sizes.`name` as size_name, sizes.`additional_price`, carts.`create_at`, carts.`update_at`", "products JOIN sizes ", "sizes.`product_id` = products.`id` and carts.`size_id` = sizes.`id`", "carts.`user_id` = $payload[id]", "", "");
         $products = $obj->getResult();
         $isProductStock = "";
         foreach ($products as $product) {

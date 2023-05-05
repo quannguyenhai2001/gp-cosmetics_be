@@ -21,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
         if (count($result)) {
             $sql1 = "SELECT ROUND(AVG(star_rating), 2) star_average, COUNT(user_id) user_rating_total
                     FROM ratings
-                    WHERE product_id = '$product_id'
+                    JOIN sizes JOIN products on ratings.`size_id` = sizes.`id` and sizes.`product_id` = products.`id`
+                    WHERE products.`id` = '$product_id'
                     GROUP BY product_id";
             $resultRating = $obj->getConnection()->query($sql1)->fetchAll(PDO::FETCH_ASSOC);
             if (count($resultRating)) {

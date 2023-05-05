@@ -59,7 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
         foreach ($result as $key => $product) {
             $sql1 = "SELECT ROUND(AVG(star_rating), 2) star_average, COUNT(user_id) user_rating_total
                     FROM ratings
-                    WHERE product_id = '$product[id]'
+                    JOIN sizes JOIN products on ratings.`size_id` = sizes.`id` and sizes.`product_id` = products.`id`
+                    WHERE products.`id` = '$product[id]'
                     GROUP BY product_id";
             $resultRating = $obj->getConnection()->query($sql1)->fetchAll(PDO::FETCH_ASSOC);
             if (count($resultRating)) {
