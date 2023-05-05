@@ -29,6 +29,16 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
             } else {
                 $result[0]['rating'] = 0;
             }
+            $sql1 = "SELECT SUM(quantity) as quantity
+                    FROM sizes
+                    WHERE product_id = '$product_id'
+                    GROUP BY product_id";
+            $resultQuantity = $obj->getConnection()->query($sql1)->fetchAll(PDO::FETCH_ASSOC);
+            if (count($resultRating)) {
+                $result[0]['quantity'] = $resultQuantity[0]["quantity"];
+            } else {
+                $result[0]['quantity'] = 0;
+            }
         }
 
         http_response_code(200);

@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
             if (count($resultRating)) {
                 $result[$key]['quantity'] = $resultRating[0]["quantity"];
             } else {
-                $result[$key]['quantity'] = null;
+                $result[$key]['quantity'] = 0;
             }
         }
         //total
