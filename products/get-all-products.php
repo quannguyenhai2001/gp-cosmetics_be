@@ -68,6 +68,18 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                 $result[$key]['rating'] = null;
             }
         }
+        foreach ($result as $key => $product) {
+            $sql1 = "SELECT SUM(quantity) as quantity
+                    FROM sizes
+                    WHERE product_id = '$product[id]'
+                    GROUP BY product_id";
+            $resultRating = $obj->getConnection()->query($sql1)->fetchAll(PDO::FETCH_ASSOC);
+            if (count($resultRating)) {
+                $result[$key]['quantity'] = $resultRating[0]["quantity"];
+            } else {
+                $result[$key]['quantity'] = null;
+            }
+        }
         //total
         $pageInfo = array();
         $total = $obj->getResult($obj->select("products", "COUNT(*)", "manufacturers", "manufacturers.`id`=products.`manufacturer_id`", $conditionString, "", ""));

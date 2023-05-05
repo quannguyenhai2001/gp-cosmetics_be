@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     }
     $conditionString =  rtrim($conditionString, " and ");
 
-    $sql = $obj->select("bills", "bills.*, users.username", "users", "bills.`user_id` = users.`id`", $conditionString, "", $pagination);
+    $sql = $obj->select("bills", "bills.*, users.username", "users", "bills.`user_id` = users.`id`", $conditionString, "create_at DESC", $pagination);
     $result = $obj->getResult();
     if ($sql) {
         $pageInfo = array();

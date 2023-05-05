@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
             if (count($resultRating)) {
                 $result[0]['rating'] = $resultRating[0];
             } else {
-                $result[0]['rating'] = null;
+                $result[0]['rating'] = 0;
             }
         }
 
