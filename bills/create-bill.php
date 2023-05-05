@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                         'product_price' => $product['price'],
                         'size_name' => $product['size_name'],
                         'size_additional_price' => $product['additional_price'],
-                        'product_id' => $product['id'],
+                        'size_id' => $product['size_id'],
                         'create_at'
                         => date("y-m-d H:i:s"),
                     ];
