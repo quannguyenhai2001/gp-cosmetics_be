@@ -25,6 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     if (isset($_GET['size_name'])) {
         $conditionString  = $conditionString . "(sizes.`name` LIKE '%{$_GET['size_name']}%')" . " and ";
     }
+    if (isset($_GET['product_id'])) {
+        $conditionString  = $conditionString . "product_id = " . $_GET['product_id'] . " and ";
+    }
     $conditionString =  rtrim($conditionString, " and ");
 
     $sql = $obj->select("sizes", "*", "", "", $conditionString, "", $pagination);
