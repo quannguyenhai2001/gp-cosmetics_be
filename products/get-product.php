@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                     WHERE product_id = '$product_id'
                     GROUP BY product_id";
             $resultQuantity = $obj->getConnection()->query($sql1)->fetchAll(PDO::FETCH_ASSOC);
-            if (count($resultRating)) {
+            if (count($resultQuantity)) {
                 $result[0]['quantity'] = $resultQuantity[0]["quantity"];
             } else {
                 $result[0]['quantity'] = 0;

@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if ($payload) {
         $data = json_decode(file_get_contents("php://input", true));
 
-        $sql = $obj->select("carts", "carts.`id`, carts.`quantity`, products.`name`, products.`price`, products.`promotion`, products.`thumbnail_url`, sizes.`id` as size_id, sizes.`name` as size_name, sizes.`additional_price`, carts.`create_at`, carts.`update_at`", "products JOIN sizes ", "sizes.`product_id` = products.`id` and carts.`size_id` = sizes.`id`", "carts.`user_id` = $payload[id]", "", "");
+        $sql = $obj->select("carts", "carts.`id`, carts.`quantity`, products.`name`, products.`price`,  products.`id` as product_id, products.`promotion`, products.`thumbnail_url`, sizes.`id` as size_id, sizes.`name` as size_name, sizes.`additional_price`, carts.`create_at`, carts.`update_at`", "products JOIN sizes ", "sizes.`product_id` = products.`id` and carts.`size_id` = sizes.`id`", "carts.`user_id` = $payload[id]", "", "");
         $products = $obj->getResult();
         $isProductStock = "";
         foreach ($products as $product) {
@@ -48,17 +48,17 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             $bill_id = $obj->getResult();
             if ($isPayment) {
                 foreach ($products as $product) {
-                    $array_param = [
+                    @$array_param = [
                         'quantity' => floatval($product['quantity']),
                         'bill_id' => $bill_id,
-                        'product_name' => $product['name'],
                         'product_name' => $product['name'],
                         'product_thumbnail_url' => $product['thumbnail_url'],
                         'product_promotion' => $product['promotion'],
                         'product_price' => $product['price'],
                         'size_name' => $product['size_name'],
-                        'size_additional_price' => $product['additional_price'],
+                        'product_id' => $product['product_id'],
                         'size_id' => $product['size_id'],
+                        'size_additional_price' => $product['additional_price'],
                         'create_at'
                         => date("y-m-d H:i:s"),
                     ];

@@ -13,12 +13,13 @@ $obj = new Database();
 
 //check method request
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
-    $sql = "SELECT bd.product_thumbnail_url, bd.product_name, COUNT(DISTINCT bd.size_id) AS num_sizes, SUM(bd.quantity) AS total_quantity
+    $sql = "SELECT bd.product_thumbnail_url, bd.product_name, p.price as dsd, bd.product_id, COUNT(DISTINCT bd.size_id) AS num_sizes, SUM(bd.quantity) AS total_quantity
         FROM bill_details bd
+        JOIN products p ON bd.product_id = p.id
         JOIN bills b ON bd.bill_id = b.id
         WHERE b.status = 'Đã giao'
-        GROUP BY bd.product_name
-        ORDER BY total_quantity DESC
+        GROUP BY bd.product_id
+        ORDER BY  total_quantity DESC
         LIMIT 10";
     $query = $obj->getConnection()->query($sql);
     $result = $query->fetchAll(PDO::FETCH_ASSOC);
