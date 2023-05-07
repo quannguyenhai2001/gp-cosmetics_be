@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     }
     $conditionString =  rtrim($conditionString, " and ");
 
-    $sql = $obj->select("products", "products.`id`,`products`.`name` as product_name,products.`thumbnail_url`,products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`", "manufacturers", "manufacturers.`id`=products.`manufacturer_id`", $conditionString, "", $pagination);
+    $sql = $obj->select("products", "products.`id`,`products`.`name` as product_name,products.`thumbnail_url`,products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`, IFNULL(SUM(bill_details.quantity), 0) AS total_sold", "manufacturers LEFT JOIN bill_details", "manufacturers.`id` = products.`manufacturer_id` and bill_details.product_id = products.id", $conditionString, "", $pagination, "products.id");
     $result = $obj->getResult();
 
     if ($sql) {

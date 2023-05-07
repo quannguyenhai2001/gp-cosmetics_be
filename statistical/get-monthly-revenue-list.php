@@ -16,8 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $sql = "SELECT YEAR(bills.create_at) as year, MONTH(bills.create_at) as month, SUM(bill_details.quantity * ((bill_details.product_price + bill_details.size_additional_price) * (1 - bill_details.product_promotion / 100))) as revenue
     FROM bills
     JOIN bill_details ON bills.id = bill_details.bill_id
-    JOIN products ON bill_details.product_id = products.id
-    JOIN sizes ON bill_details.size_id = sizes.id
+    LEFT JOIN products ON bill_details.product_id = products.id
+    LEFT JOIN sizes ON bill_details.size_id = sizes.id
     WHERE bills.status = 'Đã giao'
     GROUP BY YEAR(bills.create_at), MONTH(bills.create_at)
      

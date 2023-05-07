@@ -70,7 +70,7 @@ class Database
     }
 
     //get data
-    public function select($table, $column = "*", $join = null, $on = null, $where = null, $order = null, $limit = null)
+    public function select($table, $column = "*", $join = null, $on = null, $where = null, $order = null, $limit = null, $groupBy = null)
     {
         try {
             if ($this->tableExist($table)) {
@@ -83,6 +83,9 @@ class Database
                 }
                 if ($where) {
                     $sql .= " WHERE $where";
+                }
+                if ($groupBy) {
+                    $sql .= " GROUP BY $groupBy";
                 }
                 if ($order) {
                     $sql .= " ORDER BY $order";
