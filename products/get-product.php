@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $result = $obj->getResult();
     if ($sql) {
         if (count($result)) {
+            //rating
             $sql1 = "SELECT ROUND(AVG(star_rating), 2) star_average, COUNT(user_id) user_rating_total
                     FROM ratings
                     JOIN sizes JOIN products on ratings.`size_id` = sizes.`id` and sizes.`product_id` = products.`id`
@@ -30,15 +31,25 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
             } else {
                 $result[0]['rating'] = 0;
             }
-            $sql1 = "SELECT SUM(quantity) as quantity
+            //quantity
+            $sql2 = "SELECT SUM(quantity) as quantity
                     FROM sizes
                     WHERE product_id = '$product_id'
                     GROUP BY product_id";
-            $resultQuantity = $obj->getConnection()->query($sql1)->fetchAll(PDO::FETCH_ASSOC);
+            $resultQuantity = $obj->getConnection()->query($sql2)->fetchAll(PDO::FETCH_ASSOC);
             if (count($resultQuantity)) {
                 $result[0]['quantity'] = $resultQuantity[0]["quantity"];
             } else {
                 $result[0]['quantity'] = 0;
+            }
+            //sizes
+            $product_id = $result[0]["id"];
+            $sql3 = $obj->select("sizes", "sizes.*", "", "", "sizes.product_id = $product_id", "", "");
+            $resultSizes = $obj->getResult();
+            if (count($resultSizes)) {
+                $result[0]['sizes'] = $resultSizes;
+            } else {
+                $result[0]['sizes'] = array();
             }
         }
 
