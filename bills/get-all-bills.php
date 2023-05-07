@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     }
     $conditionString =  rtrim($conditionString, " and ");
 
-    $sql = $obj->select("bills", "bills.*, users.username", "users", "bills.`user_id` = users.`id`", $conditionString, "create_at DESC", $pagination);
+    $sql = $obj->select("bills", "bills.*, users.username, SUM(bill_details.quantity * ((bill_details.product_price + bill_details.size_additional_price) * (1 - bill_details.product_promotion / 100))) as total_price", "users JOIN bill_details", "bills.`user_id` = users.`id` and bills.id = bill_details.bill_id", $conditionString, "create_at DESC", $pagination, "bills.id");
     $result = $obj->getResult();
     if ($sql) {
         $pageInfo = array();

@@ -39,7 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 'payment_method' => $data->payment_method,
                 'note' => $data->note,
                 'status' => "Chờ xác nhận",
-                'total_price' => $data->total_price,
                 'create_at' =>
                 date("y-m-d H:i:s"),
                 'user_id' => $payload['id']
