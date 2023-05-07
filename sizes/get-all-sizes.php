@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     }
     $conditionString =  rtrim($conditionString, " and ");
 
-    $sql = $obj->select("sizes", "*", "", "", $conditionString, "", $pagination);
+    $sql = $obj->select("sizes", "sizes.*, products.name as product_name", "products", "sizes.product_id = products.id", $conditionString, "", $pagination);
     $result = $obj->getResult();
     if ($sql) {
         //total
