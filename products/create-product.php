@@ -21,79 +21,102 @@ $obj = new Database();
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $payload = checkAuth(getallheaders(), "admin");
     if ($payload) {
-        $thumbnail_url = $_FILES['thumbnail_url'];
-        http_response_code(200);
-        echo json_encode(array(
-            "image" => $thumbnail_url,
-            "thumbnail_url" => $_POST['thumbnail_url']
-        ));
-        // product_name: "",
-        // product_price: "",
-        // product_promotion: "",
-        // thumbnail_url: "",
-        // gallery_image_urls: "",
-        // manufacturer_id: "",
-        // category_id: "",
-        // product_information: "",
-        // sizes: [
-        //     {
-        //         id: 1,
-        //         size_name: "",
-        //         size_additional_price: "",
-        //         quantity: ""
-        //     }
-        // ]
-        $fileNameThumbnail  =  $_FILES['gallery_image_urls']['name'];
-        $tempPathThumbnail  =  $_FILES['gallery_image_urls']['tmp_name'];
-        $fileNameGallery  =  $_FILES['gallery_image_urls']['name'];
-        $tempPathGallery  =  $_FILES['gallery_image_urls']['tmp_name'];
+        // $fileNameThumbnail  =  $_FILES['thumbnail_url']['name'];
+        // $tempPathThumbnail  =  $_FILES['thumbnail_url']['tmp_name'];
+        // $fileNameGallery  =  $_FILES['gallery_image_urls']['name'];
+        // $tempPathGallery  =  $_FILES['gallery_image_urls']['tmp_name'];
 
-        for ($i = 0; $i < count($fileNameGallery); $i++) {
-            if (empty($fileNameGallery[$i])) {
-                $errorMSG = json_encode(array("message" => "please select image", "status" => false));
-                echo $errorMSG;
-            } else {
-                Configuration::instance([
-                    'cloud' => [
-                        'cloud_name' => $_ENV['CLOUD_NAME_CLOUDINARY'],
-                        'api_key' => $_ENV['API_KEY_CLOUDINARY'],
-                        'api_secret' => $_ENV['API_SECRET_KEY_CLOUDINARY']
-                    ],
-                    'url' => [
-                        'secure' => true
-                    ]
-                ]);
-                $data = (new UploadApi())->upload($fileNameGallery[$i], [
-                    'folder' => 'cosmetics/products/',
-                    'public_id' => $fileNameGallery[$i],
-                    'overwrite' => true,
-                    'resource_type' => 'image'
-                ]);
-                array_push($imageVal, $data['secure_url']);
+        $stringThumbnail  = "";
+        if (isset($_FILES['thumbnail_url'])) {
+            Configuration::instance([
+                'cloud' => [
+                    'cloud_name' => $_ENV['CLOUD_NAME_CLOUDINARY'],
+                    'api_key' => $_ENV['API_KEY_CLOUDINARY'],
+                    'api_secret' => $_ENV['API_SECRET_KEY_CLOUDINARY']
+                ],
+                'url' => [
+                    'secure' => true
+                ]
+            ]);
+            $data = (new UploadApi())->upload($_FILES['thumbnail_url']['tmp_name'], [
+                'folder' => 'cosmetics/products/',
+                'public_id' => pathinfo($_FILES['thumbnail_url']['name'], PATHINFO_FILENAME) . time(),
+                'overwrite' => false,
+                'resource_type' => 'image'
+            ]);
+
+            $stringThumbnail = $data['secure_url'];
+        }
+        $imageVal = array();
+        if (isset($_FILES['gallery_image_urls'])) {
+            for ($i = 0; $i < count($_FILES['gallery_image_urls']['name']); $i++) {
+                if (empty($_FILES['gallery_image_urls'])) {
+                    $errorMSG = json_encode(array("message" => "please select image", "status" => false));
+                    echo $errorMSG;
+                } else {
+                    Configuration::instance([
+                        'cloud' => [
+                            'cloud_name' => $_ENV['CLOUD_NAME_CLOUDINARY'],
+                            'api_key' => $_ENV['API_KEY_CLOUDINARY'],
+                            'api_secret' => $_ENV['API_SECRET_KEY_CLOUDINARY']
+                        ],
+                        'url' => [
+                            'secure' => true
+                        ]
+                    ]);
+                    $data = (new UploadApi())->upload($_FILES['gallery_image_urls']['tmp_name'][$i], [
+                        'folder' => 'cosmetics/products/',
+                        'public_id' => pathinfo($_FILES['gallery_image_urls']['name'][$i], PATHINFO_FILENAME) . time(),
+                        'overwrite' => false,
+                        'resource_type' => 'image'
+                    ]);
+                    array_push($imageVal, $data['secure_url']);
+                }
             }
         }
-        $image = json_encode($imageVal);
-        date_default_timezone_set('Asia/Ho_Chi_Minh');
-        $createAt = date("d-m-Y H:i:s");
-        $manu_Id = $_POST['manu_Id'];
-        $cate_Id = $_POST['cate_Id'];
+        $imageGallery = json_encode($imageVal);
+
         $sql = $obj->insert("products", [
-            "id" => "",
-            "name" => $name,
-            "price" => $price,
-            "promotion" => $promotion,
-            "description" => $description,
-            "size" => $size,
-            "amount" => $amount,
-            "image" => $image,
-            "createAt" => $createAt,
-            "manu_Id" => $manu_Id,
-            "cate_Id" => $cate_Id
+            "name" => $_POST['product_name'],
+            "price" => $_POST['product_price'],
+            "promotion" => $_POST['product_promotion'],
+            "thumbnail_url" => $stringThumbnail,
+            "gallery_image_urls" => $imageGallery,
+            'create_at' => date("y-m-d H:i:s"),
+            "manufacturer_id" => $_POST['manufacturer_id'],
+            "category_id " => $_POST['category_id']
         ]);
+        $result = $obj->getResult();
+
         if ($sql) {
+            $sql = $obj->insert("product_details", [
+                "product_information" => $_POST['productInformation'],
+                "ingredients" => $_POST['ingredients'],
+                "usage_instructions" => $_POST['usageInstructions'],
+                'create_at' => date("y-m-d H:i:s"),
+                "product_id " =>   $result
+            ]);
+
+            foreach ($_POST['sizes'] as $size) {
+                $sql = $obj->insert("sizes", [
+                    "name" => $size['size_name'],
+                    "additional_price" => $size['size_additional_price'],
+                    "quantity" => $size['quantity'],
+                    'create_at' => date("y-m-d H:i:s"),
+                    "product_id " =>   $result
+                ]);
+            }
+
+            http_response_code(200);
+            echo json_encode(array(
+                "message" => "Add product successfully!",
+            ));
         } else {
             http_response_code(400);
-            echo json_encode(array("message" => "add product failed"));
+            echo json_encode(array(
+                "message" => "Add product failed!",
+                "image" => $_FILES['gallery_image_urls']
+            ));
         }
     }
 } else {

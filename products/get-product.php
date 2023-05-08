@@ -15,7 +15,7 @@ $obj = new Database();
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $product_id = $_GET['product_id'];
 
-    $sql = $obj->select("products", "products.`id`, product_details.product_information, product_details.ingredients, product_details.usage_instructions,`products`.`name` as product_name,products.`thumbnail_url`,products.`gallery_image_urls`, products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`", "manufacturers JOIN product_details", "manufacturers.`id`=`products`.`manufacturer_id` and product_details.product_id = products.id", "products.`id` = '$product_id'", "", "");
+    $sql = $obj->select("products", "products.`id`, product_details.product_information, product_details.ingredients, product_details.usage_instructions,`products`.`name` as product_name,products.`thumbnail_url`,products.`gallery_image_urls`, products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`", "manufacturers LEFT JOIN product_details", "manufacturers.`id`=`products`.`manufacturer_id` and product_details.product_id = products.id", "products.`id` = '$product_id'", "", "");
     $result = $obj->getResult();
     if ($sql) {
         if (count($result)) {
