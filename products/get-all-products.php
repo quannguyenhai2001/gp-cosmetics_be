@@ -71,7 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     }
     $sql .= " GROUP BY products.id ";
 
-    $sql .= " ORDER BY $orderByString LIMIT $pagination";
+    $sql .= " ORDER BY $orderByString ";
+    if (!empty($pagination)) {
+        $sql .= " LIMIT $pagination ";
+    }
     $query = $obj->getConnection()->query($sql);
     $result = $query->fetchAll(PDO::FETCH_ASSOC);
 
