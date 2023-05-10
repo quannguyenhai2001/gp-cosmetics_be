@@ -51,13 +51,31 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     }
     $conditionString =  rtrim($conditionString, " and ");
 
-    $orderByString = "create_at DESC";
+    $orderByString = "products.create_at DESC";
     if (isset($_GET['soft_total_sold'])) {
         $orderByString = $_GET['soft_total_sold'] === "desc" ?   "total_sold DESC" : "total_sold ASC";
     }
 
-    $sql = $obj->select("products", "products.`id`,`products`.`name` as product_name,products.`thumbnail_url`,products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`, IFNULL(SUM(bill_details.quantity), 0) AS total_sold", "manufacturers LEFT JOIN bill_details", "manufacturers.`id` = products.`manufacturer_id` and bill_details.product_id = products.id", $conditionString, $orderByString, $pagination, "products.id");
-    $result = $obj->getResult();
+    // $sql = $obj->select("products", "products.`id`,`products`.`name` as product_name,products.`thumbnail_url`,products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`, IFNULL(SUM(bill_details.quantity), 0) AS total_sold", "manufacturers LEFT JOIN bill_details LEFT JOIN bills", "manufacturers.`id` = products.`manufacturer_id` and bill_details.product_id = products.id and bills.id = bill_details.bill_id ", $conditionString, $orderByString, $pagination, "products.id");
+
+    $sql =
+        "SELECT products.`id`,`products`.`name` as product_name,products.`thumbnail_url`,products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`,  IFNULL(SUM(CASE WHEN bills.status = 'Đã giao' THEN bill_details.quantity ELSE 0 END), 0) AS total_sold
+         FROM products
+        JOIN manufacturers ON manufacturers.`id` = products.`manufacturer_id`
+        LEFT JOIN bill_details ON bill_details.product_id = products.id
+        LEFT JOIN bills ON bill_details.bill_id = bills.id
+       ";
+
+    if (!empty($conditionString)) {
+        $sql .= "WHERE $conditionString ";
+    }
+    $sql .= " GROUP BY products.id ";
+
+    $sql .= " ORDER BY $orderByString LIMIT $pagination";
+    $query = $obj->getConnection()->query($sql);
+    $result = $query->fetchAll(PDO::FETCH_ASSOC);
+
+    // $result = $obj->getResult();
 
     if ($sql) {
         //rating
