@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
         $offsetIndex = isset($_GET['page']) ? ($limit * floatval($_GET['page'])) - $limit : 0;
         $pagination = $limit . " OFFSET " . $offsetIndex;
     }
-    $sql = $obj->select("categories", "*", "", "", "", "", $pagination);
+    $sql = $obj->select("categories", "*", "", "", "", "father_category_id = 0 DESC", $pagination);
     $result = $obj->getResult();
     $pageInfo = array();
     $total = $obj->getResult($obj->select("categories", "COUNT(*)", "", "", "", "", ""));
