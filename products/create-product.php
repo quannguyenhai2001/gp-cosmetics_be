@@ -15,16 +15,12 @@ use Cloudinary\Api\Upload\UploadApi;
 
 //initialize database
 $obj = new Database();
-// $data = json_decode(file_get_contents("php://input", true));
-// $product_name = $data->thumbnail_url;
+
 //check method request
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $payload = checkAuth(getallheaders(), "admin");
     if ($payload) {
-        // $fileNameThumbnail  =  $_FILES['thumbnail_url']['name'];
-        // $tempPathThumbnail  =  $_FILES['thumbnail_url']['tmp_name'];
-        // $fileNameGallery  =  $_FILES['gallery_image_urls']['name'];
-        // $tempPathGallery  =  $_FILES['gallery_image_urls']['tmp_name'];
+
 
         $stringThumbnail  = "";
         if (isset($_FILES['thumbnail_url'])) {
@@ -74,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 }
             }
         }
-        $imageGallery = json_encode($imageVal);
+        $imageGallery = empty($imageVal) ? "" : json_encode($imageVal);
 
         $sql = $obj->insert("products", [
             "name" => $_POST['product_name'],

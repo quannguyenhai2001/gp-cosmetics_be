@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if ($payload) {
         $arr = array();
         $stringThumbnail  = "";
+
         if (isset($_FILES['thumbnail_url'])) {
             Configuration::instance([
                 'cloud' => [
@@ -31,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     'secure' => true
                 ]
             ]);
+
             $data = (new UploadApi())->upload($_FILES['thumbnail_url']['tmp_name'], [
                 'folder' => 'cosmetics/products/',
                 'public_id' => pathinfo($_FILES['thumbnail_url']['name'], PATHINFO_FILENAME) . time(),
@@ -40,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             $arr['thumbnail_url']
                 = $data['secure_url'];
         }
+
         $imageVal = array();
         if (isset($_FILES['gallery_image_urls'])) {
             for ($i = 0; $i < count($_FILES['gallery_image_urls']['name']); $i++) {
@@ -82,24 +85,33 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $result = $obj->getResult();
 
         if ($sql) {
-            // $sql = $obj->insert("product_details", [
-            //     "product_information" => $_POST['productInformation'],
-            //     "ingredients" => $_POST['ingredients'],
-            //     "usage_instructions" => $_POST['usageInstructions'],
-            //     'create_at' => date("y-m-d H:i:s"),
-            //     "product_id " =>    $_POST['product_id']
-            // ]);
+            $sql = $obj->update("product_details", [
+                "product_information" => $_POST['productInformation'],
+                "ingredients" => $_POST['ingredients'],
+                "usage_instructions" => $_POST['usageInstructions'],
+                'update_at' => date("y-m-d H:i:s"),
 
-            // foreach ($_POST['sizes'] as $size) {
-            //     $sql = $obj->insert("sizes", [
-            //         "name" => $size['size_name'],
-            //         "additional_price" => $size['size_additional_price'],
-            //         "quantity" => $size['quantity'],
-            //         'create_at' => date("y-m-d H:i:s"),
-            //         "product_id " => $_POST['product_id']
-            //     ]);
-            // }
+            ], "product_id = $_POST[product_id]");
 
+            foreach ($_POST['sizes'] as $size) {
+                if (isset($size['size_id'])) {
+                    $sql = $obj->update("sizes", [
+                        "name" => $size['size_name'],
+                        "additional_price" => $size['size_additional_price'],
+                        "quantity" => $size['quantity'],
+                        'update_at' => date("y-m-d H:i:s"),
+                    ], "id = $size[size_id]");
+                } else {
+                    $sql = $obj->insert("sizes", [
+                        "name" => $size['size_name'],
+                        "additional_price" => $size['size_additional_price'],
+                        "quantity" =>  $size['quantity'],
+                        'create_at' => date("y-m-d H:i:s"),
+                        "product_id " =>   $_POST['product_id']
+                    ]);
+                }
+            }
+            print_r($_POST['sizes']);
             http_response_code(200);
             echo json_encode(array(
                 "message" => "Update product successfully!",
