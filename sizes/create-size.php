@@ -26,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
         if (is_iterable($sizes)) {
             foreach ($sizes as $size) {
-
                 $sql = $obj->insert("sizes", [
                     "name" => $size->size_name,
                     "additional_price" => $size->size_additional_price,
