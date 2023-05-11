@@ -10,8 +10,7 @@ include_once "../database/database.php";
 include_once("../vendor/autoload.php");
 include_once "../middleware/check-auth.php";
 
-use Cloudinary\Configuration\Configuration;
-use Cloudinary\Api\Upload\UploadApi;
+
 
 //initialize database
 $obj = new Database();
@@ -20,10 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $payload = checkAuth(getallheaders(), "admin");
     if ($payload) {
         $data = json_decode(file_get_contents("php://input", true));
-
         $product_id = htmlspecialchars(strip_tags($data->product_id));
         $sizes = $data->sizes;
-
         if (is_iterable($sizes)) {
             foreach ($sizes as $size) {
                 $sql = $obj->insert("sizes", [
@@ -35,8 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 ]);
             }
         }
-
-
         http_response_code(200);
         echo json_encode(array(
             "message" => "Add size successfully!",
