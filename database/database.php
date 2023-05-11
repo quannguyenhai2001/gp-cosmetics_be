@@ -116,6 +116,7 @@ class Database
                 }
                 $sql = "UPDATE $table SET " . implode(', ', $arg) . " WHERE $where";
                 $this->pdo->query($sql);
+
                 return true;
             } else {
                 return false;
