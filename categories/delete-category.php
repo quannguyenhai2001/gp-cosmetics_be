@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == "DELETE") {
         $ids = $data->ids;
         $string = '(' . implode(',', $ids) . ')';
 
-        $sql = $obj->delete("categories", "`categories`.`id` IN  $string");
+        $sql = $obj->delete("categories", "`categories`.`id` IN  $string OR categories.`father_category_id` IN $string");
         $result = $obj->getResult();
         if ($sql) {
             http_response_code(200);
