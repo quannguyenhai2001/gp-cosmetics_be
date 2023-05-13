@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             }
         }
         if (!empty($imageVal)) {
-            $arr['thumbnail_url'] =
+            $arr['gallery_image_urls'] =
                 json_encode($imageVal);
         }
 
