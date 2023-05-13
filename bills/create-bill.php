@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 break;
             }
         }
-        print_r($products);
+
         if (!$isProductStock) {
             $array_param = [
                 'receiver_name' => $data->receiver_name,
