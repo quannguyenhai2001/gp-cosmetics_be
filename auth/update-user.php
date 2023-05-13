@@ -103,7 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 http_response_code(200);
                 echo json_encode([
                     "status" => "success",
-                    "message" => $_POST['address']
+                    "message" => "User updated successfully!"
+
                 ]);
             } else {
                 http_response_code(400);
