@@ -15,7 +15,8 @@ $obj = new Database();
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $payload = checkAuth(getallheaders(), null);
     if ($payload) {
-        $sql = $obj->select("users", "*", null, null, "id='$payload[id]'", null, null);
+        $size_id = $_GET['size_id'];
+        $sql = $obj->select("sizes", " products.*, sizes.name as size_name, sizes.additional_price, sizes.quantity ", "products", "sizes.`product_id` = products.`id`", "sizes.`id` = '$size_id'", null, null);
         $result = $obj->getResult();
         if ($sql) {
             http_response_code(200);

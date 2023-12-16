@@ -7,6 +7,7 @@ header("Access-Control-Allow-Methods: GET");
 
 //import file
 include_once "../database/database.php";
+include_once "../middleware/check-auth.php";
 
 //initialize database
 $obj = new Database();
@@ -19,24 +20,25 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
         $offsetIndex = isset($_GET['page']) ? ($limit * floatval($_GET['page'])) - $limit : 0;
         $pagination = $limit . " OFFSET " . $offsetIndex;
     }
-    $sql = $obj->select("categories", "*", "", "", "", "father_category_id = 0 DESC", $pagination);
+    $sql = $obj->select("manufacturers", "*", "", "", "", "", $pagination);
     $result = $obj->getResult();
-    $pageInfo = array();
-    $total = $obj->getResult($obj->select("categories", "COUNT(*)", "", "", "", "", ""));
-
-    $pageInfo["total"] = floatval($total[0]["COUNT(*)"]);
-    if (isset($_GET['use_page']) && $_GET['use_page'] == 1) {
-        $pageInfo["page"] = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $pageInfo["limit"] = $limit;
-        $pageInfo["total_page"] = ceil($total[0]["COUNT(*)"] / $limit);
-    }
     if ($sql) {
+        $pageInfo = array();
+        $total = $obj->getResult($obj->select("manufacturers", "COUNT(*)", "", "", "", "", ""));
+
+        $pageInfo["total"] = floatval($total[0]["COUNT(*)"]);
+        if (isset($_GET['use_page']) && $_GET['use_page'] == 1) {
+            $pageInfo["page"] = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $pageInfo["limit"] = $limit;
+            $pageInfo["total_page"] = ceil($total[0]["COUNT(*)"] / $limit);
+        }
         http_response_code(200);
-        echo json_encode(array(
+        echo json_encode([
             "status" => "success",
             "data" => $result,
             "pageInfo" =>  $pageInfo,
-        ));
+
+        ]);
     } else {
         http_response_code(400);
         echo json_encode([
@@ -47,6 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
 } else {
     echo json_encode(array(
         "status" => "error",
-        "message" => "Access denied!",
+        "message" => "Access denied!"
     ));
 }

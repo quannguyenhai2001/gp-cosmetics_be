@@ -70,7 +70,7 @@ class Database
     }
 
     //get data
-    public function select($table, $column = "*", $join = null, $on = null, $where = null, $order = null, $limit = null)
+    public function select($table, $column = "*", $join = null, $on = null, $where = null, $order = null, $limit = null, $groupBy = null)
     {
         try {
             if ($this->tableExist($table)) {
@@ -83,6 +83,9 @@ class Database
                 }
                 if ($where) {
                     $sql .= " WHERE $where";
+                }
+                if ($groupBy) {
+                    $sql .= " GROUP BY $groupBy";
                 }
                 if ($order) {
                     $sql .= " ORDER BY $order";
@@ -113,6 +116,7 @@ class Database
                 }
                 $sql = "UPDATE $table SET " . implode(', ', $arg) . " WHERE $where";
                 $this->pdo->query($sql);
+
                 return true;
             } else {
                 return false;
@@ -131,7 +135,9 @@ class Database
                 $table_column = implode(',', array_keys($params));
                 $table_value = implode("','", array_values($params));
                 $sql = "INSERT INTO $table ($table_column) VALUES ('$table_value')";
-                $this->pdo->query($sql);
+
+                $query = $this->pdo->query($sql);
+                $this->result = $this->pdo->lastInsertId();
                 return true;
             } else {
                 return false;

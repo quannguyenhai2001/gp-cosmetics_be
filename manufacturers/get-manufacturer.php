@@ -15,7 +15,8 @@ $obj = new Database();
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $payload = checkAuth(getallheaders(), null);
     if ($payload) {
-        $sql = $obj->select("users", "*", null, null, "id='$payload[id]'", null, null);
+        $manufacturer_id = $_GET['manufacturer_id'];
+        $sql = $obj->select("manufacturers", "*", null, null, "id='$manufacturer_id'", null, null);
         $result = $obj->getResult();
         if ($sql) {
             http_response_code(200);

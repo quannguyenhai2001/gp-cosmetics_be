@@ -18,8 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] == "DELETE") {
     if ($payload) {
         //get data from client
         $data = json_decode(file_get_contents("php://input", true));
-        $id = $data->user_id;
-        $sql = $obj->delete("users", "`users`.`id` = $id");
+        $ids = $data->ids;
+        $string = '(' . implode(',', $ids) . ')';
+        $sql = $obj->delete("users", "`users`.`id` IN  $string");
         $result = $obj->getResult();
         if ($sql) {
             http_response_code(200);
@@ -36,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == "DELETE") {
         }
     }
 } else {
-    http_response_code(405);
+
     echo json_encode(array(
         "status" => "error",
         "message" => "Access denied!",

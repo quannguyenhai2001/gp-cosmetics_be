@@ -8,31 +8,33 @@ header("Access-Control-Allow-Methods: POST");
 //import file
 include_once "../database/database.php";
 include_once "../middleware/check-auth.php";
-
 //initialize database
 $obj = new Database();
+include_once "../middleware/check-auth.php";
 
 //check method request
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
-    $payload = checkAuth(getallheaders(), "admin");
+    $payload = checkAuth(getallheaders(), "user");
     if ($payload) {
         $data = json_decode(file_get_contents("php://input", true));
-        $category_name = htmlspecialchars(strip_tags($data->category_name));
-        $father_category_id = 0;
-        if (isset($data->father_category_id)) {
-            $father_category_id = $data->father_category_id;
-        }
-        $sql = $obj->insert("categories", [
-            "name" => $category_name,
-            "father_category_id" => $father_category_id,
+        $star_rating = $data->star_rating;
+        $comment = $data->comment;
+        $size_id  = $data->size_id;
+        $bill_detail_id = $data->bill_detail_id;
+        $sql = $obj->insert("ratings", [
+            "star_rating" => $star_rating,
+            "comment" => $comment,
+            "size_id" => $size_id,
+            "bill_detail_id" => $bill_detail_id,
+            "user_id" => $payload['id'],
             'create_at' => date("y-m-d H:i:s"),
         ]);
-        $result = $obj->getResult();
+        $result  = $obj->getResult();
         if ($sql) {
             http_response_code(200);
             echo json_encode([
-                "status" => 'success',
-                "message" => "Category created successfully!",
+                "status" => "success",
+                "message" => "Rating product successfully!",
             ]);
         } else {
             http_response_code(400);
@@ -46,6 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     echo json_encode(array(
         "status" => "error",
-        "message" => "Access denied!",
+        "message" => "access denied",
     ));
 }

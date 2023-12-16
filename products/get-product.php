@@ -13,21 +13,43 @@ $obj = new Database();
 
 //check method request
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
-    $data = json_decode(file_get_contents("php://input", true));
-    $product_id = $data->product_id;
-    $sql = $obj->select("products", "products.`id`,`products`.`name` as product_name,products.`thumbnail_url`,products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`", "manufacturers", "manufacturers.`id`=`products`.`manufacturer_id`", "products.`id` = '$product_id'", "", "");
+    $product_id = $_GET['product_id'];
+
+    $sql = $obj->select("products", "products.`id`, product_details.product_information, product_details.ingredients, product_details.usage_instructions,`products`.`name` as product_name,products.`thumbnail_url`,products.`gallery_image_urls`, products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`", "manufacturers JOIN product_details", "manufacturers.`id`=`products`.`manufacturer_id` and product_details.product_id = products.id", "products.`id` = '$product_id'", "", "");
     $result = $obj->getResult();
     if ($sql) {
         if (count($result)) {
+            //rating
             $sql1 = "SELECT ROUND(AVG(star_rating), 2) star_average, COUNT(user_id) user_rating_total
                     FROM ratings
-                    WHERE product_id = '$product_id'
+                    JOIN sizes JOIN products on ratings.`size_id` = sizes.`id` and sizes.`product_id` = products.`id`
+                    WHERE products.`id` = '$product_id'
                     GROUP BY product_id";
             $resultRating = $obj->getConnection()->query($sql1)->fetchAll(PDO::FETCH_ASSOC);
             if (count($resultRating)) {
                 $result[0]['rating'] = $resultRating[0];
             } else {
-                $result[0]['rating'] = null;
+                $result[0]['rating'] = 0;
+            }
+            //quantity
+            $sql2 = "SELECT SUM(quantity) as quantity
+                    FROM sizes
+                    WHERE product_id = '$product_id'
+                    GROUP BY product_id";
+            $resultQuantity = $obj->getConnection()->query($sql2)->fetchAll(PDO::FETCH_ASSOC);
+            if (count($resultQuantity)) {
+                $result[0]['quantity'] = $resultQuantity[0]["quantity"];
+            } else {
+                $result[0]['quantity'] = 0;
+            }
+            //sizes
+            $product_id = $result[0]["id"];
+            $sql3 = $obj->select("sizes", "sizes.*", "", "", "sizes.product_id = $product_id", "", "");
+            $resultSizes = $obj->getResult();
+            if (count($resultSizes)) {
+                $result[0]['sizes'] = $resultSizes;
+            } else {
+                $result[0]['sizes'] = array();
             }
         }
 
@@ -35,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
         echo json_encode(
             [
                 "status" => "success",
-                "data" => $result,
+                "data" => $result[0],
             ]
         );
     } else {

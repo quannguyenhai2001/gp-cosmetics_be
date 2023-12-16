@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $email = htmlspecialchars(strip_tags($data->email));
     $password =  htmlentities(strip_tags($data->password));
 
-    $sql = $obj->select("users", "*", null, null, "email='$email'", null, null);
+    $sql = $obj->select("users", "*", null, null, "email='$email' and role LIKE '%admin%'", null, null);
     $data = $obj->getResult();
     if ($sql) {
         if (count($data)) {

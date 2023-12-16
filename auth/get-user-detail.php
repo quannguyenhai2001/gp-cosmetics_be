@@ -13,15 +13,18 @@ include_once("../vendor/autoload.php");
 $obj = new Database();
 
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
-    $payload = checkAuth(getallheaders(), null);
+    $payload = checkAuth(getallheaders(), "admin");
     if ($payload) {
-        $sql = $obj->select("users", "*", null, null, "id='$payload[id]'", null, null);
+        $user_id = $_GET['user_id'];
+
+
+        $sql = $obj->select("users", "*", null, null, "id='$user_id'", null, null);
         $result = $obj->getResult();
         if ($sql) {
             http_response_code(200);
             echo json_encode([
                 "status" => "success",
-                "data" => $result[0],
+                "data" =>  $result[0],
             ]);
         } else {
             http_response_code(400);

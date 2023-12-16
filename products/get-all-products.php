@@ -1,8 +1,5 @@
 <?php
 //add headers
-
-use function PHPSTORM_META\type;
-
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header("Content-Type: application/json; charset=UTF-8");
@@ -18,7 +15,7 @@ $obj = new Database();
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
     //filter
     $pagination = null;
-    $limit = 10;
+    $limit = 15;
 
     if (isset($_GET['use_page']) && $_GET['use_page'] == 1) {
         $offsetIndex = isset($_GET['page']) ? ($limit * floatval($_GET['page'])) - $limit : 0;
@@ -30,11 +27,20 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     if (isset($_GET['category_id'])) {
         $conditionString  = $conditionString . "category_id = " . $_GET['category_id'] . " and ";
     }
-    if (isset($_GET['price'])) {
-        $conditionString  = $conditionString . "price >= " . $_GET['price'][0] . " and " . "price <= " . $_GET['price'][1] . " and ";
+    if (isset($_GET['product_name'])) {
+        $conditionString  = $conditionString . "(products.`name` LIKE '%{$_GET['product_name']}%')" . " and ";
+    }
+    if (isset($_GET['manufacturer_name'])) {
+        $conditionString  = $conditionString . "(manufacturers.`name` LIKE '%{$_GET['manufacturer_name']}%')" . " and ";
+    }
+    if (isset($_GET['start_price'])) {
+        $conditionString  = $conditionString . "price >= " . $_GET['start_price'] . " and ";
+    }
+    if (isset($_GET['end_price'])) {
+        $conditionString  = $conditionString  . "price <= " . $_GET['end_price'] . " and ";
     }
     if (isset($_GET['promotion'])) {
-        $conditionString  = $conditionString . "promotion >= " . $_GET['promotion'] . " and ";
+        $conditionString  = $conditionString . "promotion > 0" . " and ";
     }
     if (isset($_GET['manufacturer_id'])) {
         $conditionString  = $conditionString . "manufacturer_id = " . $_GET['manufacturer_id'] . " and ";
@@ -45,21 +51,60 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     }
     $conditionString =  rtrim($conditionString, " and ");
 
-    $sql = $obj->select("products", "products.`id`,`products`.`name` as product_name,products.`thumbnail_url`,products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`", "manufacturers", "manufacturers.`id`=products.`manufacturer_id`", $conditionString, "", $pagination);
-    $result = $obj->getResult();
+    $orderByString = "products.create_at DESC";
+    if (isset($_GET['soft_total_sold'])) {
+        $orderByString = $_GET['soft_total_sold'] === "desc" ?   "total_sold DESC" : "total_sold ASC";
+    }
+
+    // $sql = $obj->select("products", "products.`id`,`products`.`name` as product_name,products.`thumbnail_url`,products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`, IFNULL(SUM(bill_details.quantity), 0) AS total_sold", "manufacturers LEFT JOIN bill_details LEFT JOIN bills", "manufacturers.`id` = products.`manufacturer_id` and bill_details.product_id = products.id and bills.id = bill_details.bill_id ", $conditionString, $orderByString, $pagination, "products.id");
+
+    $sql =
+        "SELECT products.`id`,`products`.`name` as product_name,products.`thumbnail_url`,products.`price`,products.`promotion`,products.`category_id`,products.`manufacturer_id`,manufacturers.`name` as manufacturer_name, manufacturers.`address` as manufacturer_address, products.`create_at`, products.`update_at`,  IFNULL(SUM(CASE WHEN bills.status = 'Đã giao' THEN bill_details.quantity ELSE 0 END), 0) AS total_sold
+         FROM products
+        JOIN manufacturers ON manufacturers.`id` = products.`manufacturer_id`
+        LEFT JOIN bill_details ON bill_details.product_id = products.id
+        LEFT JOIN bills ON bill_details.bill_id = bills.id
+       ";
+
+    if (!empty($conditionString)) {
+        $sql .= "WHERE $conditionString ";
+    }
+    $sql .= " GROUP BY products.id ";
+
+    $sql .= " ORDER BY $orderByString ";
+    if (!empty($pagination)) {
+        $sql .= " LIMIT $pagination ";
+    }
+    $query = $obj->getConnection()->query($sql);
+    $result = $query->fetchAll(PDO::FETCH_ASSOC);
+
+    // $result = $obj->getResult();
 
     if ($sql) {
         //rating
         foreach ($result as $key => $product) {
             $sql1 = "SELECT ROUND(AVG(star_rating), 2) star_average, COUNT(user_id) user_rating_total
                     FROM ratings
-                    WHERE product_id = '$product[id]'
+                    JOIN sizes JOIN products on ratings.`size_id` = sizes.`id` and sizes.`product_id` = products.`id`
+                    WHERE products.`id` = '$product[id]'
                     GROUP BY product_id";
             $resultRating = $obj->getConnection()->query($sql1)->fetchAll(PDO::FETCH_ASSOC);
             if (count($resultRating)) {
                 $result[$key]['rating'] = $resultRating[0];
             } else {
                 $result[$key]['rating'] = null;
+            }
+        }
+        foreach ($result as $key => $product) {
+            $sql1 = "SELECT SUM(quantity) as quantity
+                    FROM sizes
+                    WHERE product_id = '$product[id]'
+                    GROUP BY product_id";
+            $resultRating = $obj->getConnection()->query($sql1)->fetchAll(PDO::FETCH_ASSOC);
+            if (count($resultRating)) {
+                $result[$key]['quantity'] = $resultRating[0]["quantity"];
+            } else {
+                $result[$key]['quantity'] = 0;
             }
         }
         //total
